@@ -1,0 +1,41 @@
+/* Nav.css */
+
+.nav-container {
+  background-color: #333;
+  color: #fff;
+}
+
+.nav-links {
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.navbar-link:hover {
+  color: #007bff;
+}
+
+a {
+  text-decoration: none;
+  color: white;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #ddd;
+}
+nav ul {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+nav li {
+  list-style-type: none;
+  margin-right: 20px;
+}
+
+h5 {
+  margin: 0;
+}
