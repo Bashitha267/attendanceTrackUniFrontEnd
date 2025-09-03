@@ -1,7 +1,6 @@
 import AdminDashboard from './Admin/Admin';
 import LoginPage from './Auth/LoginPage';
 import { AuthProvider, useAuth } from './Context/AuthContext';
-import Header from './Layout/Header';
 import RegistrarDashboard from './Registrar/Registrar';
 import StudentDashboard from './Student/Student';
 import TeacherDashboard from './Teacher/Teacher';
@@ -41,7 +40,7 @@ const AppContent=() => {
 function App() {
   return (
     <AuthProvider>
-      <Header title=''/>
+      {/* <Header title=''/> */}
       <AppContent />
     </AuthProvider>
   );

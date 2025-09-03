@@ -1,208 +1,309 @@
-import { Eye, EyeOff, QrCode } from 'lucide-react';
-import { useState } from 'react';
-import { useAuth } from '../Context/AuthContext';
+import axios from "axios";
+import { BookOpenText, ClipboardList, GraduationCap } from "lucide-react";
+import { useState } from "react";
+import { useAuth } from "../Context/AuthContext";
 
-const LoginPage= () => {
-  const [isLogin, setIsLogin] = useState(true);
+const LoginPage = () => {
+  const [isSignin, setIsSignIn] = useState("login");
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedRole, setSelectedRole] = useState('student');
+  const [selectedRole, setSelectedRole] = useState("student");
+  const[errMessage,setErrMessage]=useState("");
+  const[successMessage,setSuccessMessage]=useState("");
+
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    name: '',
-    studentId: '',
-    teacherCode: '',
-    confirmPassword: '',
+    email: "",
+    password: "",
+    name: "",
+    reg_no: "",
+    confirmPassword: "",
+    role: "",
+    gender: "",
+    dob: "",
+    contact_no: "",
   });
 
   const { login, register, loading } = useAuth();
 
   const roles = [
-    { value: 'student', label: 'Student', description: 'Access courses and track attendance' },
-    { value: 'teacher', label: 'Teacher', description: 'Manage courses and student enrollment' },
-    { value: 'admin', label: 'Admin', description: 'System administration and management' },
-    { value: 'registrar', label: 'Registrar', description: 'Mark attendance and generate reports' },
+    { role: "student", icon: GraduationCap },
+    { role: "lecturer", icon: BookOpenText },
+    { role: "registrar", icon: ClipboardList },
   ];
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (isLogin) {
-      await login(formData.email, formData.password, selectedRole);
-    } else {
-      await register({ ...formData, role: selectedRole });
-    }
-  };
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  const signIn=(e)=>{
+    e.preventDefault();
 
+  }
+  const signUp = async (e) => {
+  e.preventDefault();
+
+  try {
+    if(formData.confirmPassword!=formData.password)
+    {
+      setErrMessage("Passwords didnt match")
+      return
+    }
+    const res = await axios.post("http://localhost:5000/users/signup", formData);
+    if(res.data.success){
+      setErrMessage(""),
+      setSuccessMessage("User details send to admin success")
+console.log("✅ Registered:");
+
+    }
+    else {
+      setSuccessMessage(''),
+      setErrMessage(res.data.message)}
+    
+    // Example: after successful signup, switch to login
+    // setIsSignIn("login");
+  } catch (err) {
+    console.error("❌ Signup error:", err.response?.data || err.message);
+    alert(err.response?.data?.message || "Something went wrong!");
+  }
+};
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 to-white flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        {/* Logo and Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <QrCode className="text-red-600 mr-2" size={40} />
-            <h1 className="text-3xl font-bold text-red-600">AttendanceQR</h1>
-          </div>
-          <p className="text-gray-600">Smart Attendance Management System</p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br bg-gray-200 flex items-center justify-center p-4">
+      <div className="max-w-md w-full shadow-2xl">
+        {isSignin === "login" && (
+          <form onSubmit={signIn}>
+            <div className="flex flex-col gap-3 pt-5 p-4 bg-white ">
+            <div className="text-2xl font-bold text-center mb-6 ">
+              Welcome Back
+            </div>
 
-        {/* Auth Toggle */}
-        <div className="flex bg-gray-100 p-1 rounded-lg mb-6">
-          <button
-            type="button"
-            onClick={() => setIsLogin(true)}
-            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-              isLogin 
-                ? 'bg-white text-red-600 shadow-sm' 
-                : 'text-gray-600 hover:text-gray-800'
-            }`}
-          >
-            Sign In
-          </button>
-          <button
-            type="button"
-            onClick={() => setIsLogin(false)}
-            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-              !isLogin 
-                ? 'bg-white text-red-600 shadow-sm' 
-                : 'text-gray-600 hover:text-gray-800'
-            }`}
-          >
-            Sign Up
-          </button>
-        </div>
+            <div className="mx-2 flex flex-col">
+              <label className="mb-1">Email</label>
+              <input
+                type="email"
+                name="email"
+                placeholder="enter the email"
+                value={formData.email}
+                onChange={handleInputChange}
+                className="w-full rounded-lg px-2 py-2 border-gray-300 border-2 focus:outline-none focus:ring-2 focus:ring-purple-600"
+              />
+            </div>
 
-        {/* Role Selection */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-3">Select Role</label>
-          <div className="grid grid-cols-2 gap-3">
-            {roles.map((role) => (
-              <button
-                key={role.value}
-                type="button"
-                onClick={() => setSelectedRole(role.value)}
-                className={`p-3 text-left rounded-lg border-2 transition-colors ${
-                  selectedRole === role.value
-                    ? 'border-red-500 bg-red-50 text-red-700'
-                    : 'border-gray-200 hover:border-red-300 hover:bg-red-50'
-                }`}
-              >
-                <div className="font-medium text-sm">{role.label}</div>
-                <div className="text-xs text-gray-500 mt-1">{role.description}</div>
+            <div className="mx-2 flex flex-col mt-2">
+              <label className="mb-1">Password</label>
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="enter the password"
+                value={formData.password}
+                onChange={handleInputChange}
+                className="w-full py-2 px-2 border-gray-300 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+              />
+            </div>
+
+            <div className="flex-row flex justify-between mx-2 mb-4">
+              <div>
+                <input type="checkbox" /> Remember Me
+              </div>
+              <div className="text-purple-600">Forgot password</div>
+            </div>
+
+            <div className="flex flex-row ">
+              <button className="bg-purple-600 w-full mx-2 rounded-lg h-10 text-white ">
+                Login
               </button>
-            ))}
-          </div>
-        </div>
+            </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-6">
-          {!isLogin && (
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+            <div className="text-center">
+              Don’t have an Account{" "}
+              <span
+                className="text-purple-600 font-bold cursor-pointer"
+                onClick={() => setIsSignIn("signup")}
+              >
+                Sign Up
+              </span>
+            </div>
+          </div>
+
+          </form>
+          
+        )}
+
+        {isSignin === "signup" && (
+          <form onSubmit={signUp}>
+              <div className="flex flex-col gap-3 pt-5 p-4 bg-white ">
+            <div className="text-2xl font-bold text-center mb-6 ">Register</div>
+
+            <div className="mx-2 flex flex-col">
+              <label className="mb-1">Name</label>
               <input
                 type="text"
                 name="name"
+                placeholder="enter your name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                placeholder="Enter your full name"
-                required
+                className="w-full rounded-lg px-2 py-2 border-gray-300 border-2 focus:outline-none focus:ring-2 focus:ring-purple-600"
               />
             </div>
-          )}
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              placeholder="Enter your email"
-              required
-            />
-          </div>
-
-          {!isLogin && selectedRole === 'student' && (
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Student ID</label>
+            <div className="mx-2 flex flex-col">
+              <label className="mb-1">Reg No</label>
               <input
                 type="text"
-                name="studentId"
-                value={formData.studentId}
+                name="reg_no"
+                placeholder="enter registration number"
+                value={formData.reg_no}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                placeholder="Enter your student ID"
-                required
+                className="w-full rounded-lg px-2 py-2 border-gray-300 border-2 focus:outline-none focus:ring-2 focus:ring-purple-600"
               />
             </div>
-          )}
 
-          {!isLogin && selectedRole === 'teacher' && (
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Teacher Code</label>
+            <div className="mx-2 flex flex-col">
+              <label className="mb-1">Email</label>
+              <input
+                type="email"
+                name="email"
+                placeholder="enter the email"
+                value={formData.email}
+                onChange={handleInputChange}
+                className="w-full rounded-lg px-2 py-2 border-gray-300 border-2 focus:outline-none focus:ring-2 focus:ring-purple-600"
+              />
+            </div>
+
+            <div className="mx-2 flex flex-col">
+              <label className="mb-1">Contact No</label>
               <input
                 type="text"
-                name="teacherCode"
-                value={formData.teacherCode}
+                name="contact_no"
+                placeholder="enter contact number"
+                value={formData.contact_no}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                placeholder="Enter your teacher code"
-                required
+                className="w-full rounded-lg px-2 py-2 border-gray-300 border-2 focus:outline-none focus:ring-2 focus:ring-purple-600"
               />
             </div>
-          )}
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
-            <div className="relative">
+            {/* Role Selection */}
+            <div className="mx-2 flex flex-col">
+              <label className="mb-1 flex flex-row">Role</label>
+              <div className="flex flex-row gap-3 ">
+                {roles.map((role, index) => {
+                  const Icon = role.icon;
+                  return (
+                    <div
+                      key={index}
+                      onClick={() => {
+                        setSelectedRole(role.role);
+                        setFormData({ ...formData, role: role.role });
+                      }}
+                      className={`flex flex-row mx-2 items-center py-2 px-2 border-2 rounded-lg cursor-pointer ${
+                        selectedRole === role.role
+                          ? "border-purple-600 bg-purple-100"
+                          : "border-gray-300"
+                      }`}
+                    >
+                      <Icon
+                        size={32}
+                        className={`${
+                          selectedRole === role.role
+                            ? "text-purple-600"
+                            : "text-gray-500"
+                        }`}
+                      />
+                      <span
+                        className={`mx-1 ${
+                          selectedRole === role.role
+                            ? "text-purple-600 font-semibold"
+                            : "text-gray-600"
+                        }`}
+                      >
+                        {role.role}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="mx-2 flex flex-col">
+              <label className="mb-1">Date Of Birth</label>
               <input
-                type={showPassword ? 'text' : 'password'}
+                type="date"
+                name="dob"
+                value={formData.dob}
+                onChange={handleInputChange}
+                className="w-full rounded-lg px-2 py-2 border-gray-300 border-2 focus:outline-none focus:ring-2 focus:ring-purple-600"
+              />
+            </div>
+
+            <div className="mx-2 flex flex-col">
+              <label className="mb-1">Gender</label>
+              <input
+                type="text"
+                name="gender"
+                placeholder="enter gender"
+                value={formData.gender}
+                onChange={handleInputChange}
+                className="w-full rounded-lg px-2 py-2 border-gray-300 border-2 focus:outline-none focus:ring-2 focus:ring-purple-600"
+              />
+            </div>
+
+            <div className="mx-2 flex flex-col mt-2">
+              <label className="mb-1">Password</label>
+              <input
+                type={showPassword ? "text" : "password"}
                 name="password"
+                placeholder="enter password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                placeholder="Enter your password"
-                required
+                className="w-full py-2 px-2 border-gray-300 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
             </div>
-          </div>
 
-          {!isLogin && (
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+            <div className="mx-2 flex flex-col mt-2">
+              <label className="mb-1">Confirm Password</label>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="confirmPassword"
+                placeholder="confirm password"
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                placeholder="Confirm your password"
-                required
+                className="w-full py-2 px-2 border-gray-300 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
               />
             </div>
-          )}
+               {errMessage && (
+  <div className="border border-red-500 text-red-600 px-4 py-2 rounded mb-4 mx-2 text-center">
+    {errMessage}
+  </div>
+)}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-red-600 text-white py-3 rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Processing...' : isLogin ? 'Sign In' : 'Create Account'}
-          </button>
-        </form>
+{successMessage && (
+  <div className="border border-green-500 text-green-600 px-4 py-2 rounded mb-4 text-center">
+    {successMessage}
+  </div>
+)}
+
+            <div className="flex-row flex justify-between mx-2 mb-4">
+              <div>
+                <input type="checkbox" /> Remember Me
+              </div>
+            </div>
+
+            <div className="flex flex-row ">
+              <button className="bg-purple-600 w-full mx-2 rounded-lg h-10 text-white " type="submit">
+                Register
+              </button>
+            </div>
+
+            <div className="text-center">
+              Already have an account?{" "}
+              <span
+                className="text-purple-600 font-bold cursor-pointer"
+                onClick={() => setIsSignIn("login")}
+              >
+                Login
+              </span>
+            </div>
+          </div>
+          </form>
+        
+        )}
       </div>
     </div>
   );
