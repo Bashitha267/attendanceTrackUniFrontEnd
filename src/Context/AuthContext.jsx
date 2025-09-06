@@ -14,11 +14,18 @@ export const AuthProvider = ({ children }) => {
   const [authState, setAuthState] = useState({
     user: null,
     isAuthenticated: false,
-    loading: false,
+    loading: true, // Start loading until we check localStorage
   });
 
-  const login = async (email, password, role) => {
+  const login = async (email, password) => {
     setAuthState((prev) => ({ ...prev, loading: true }));
+
+    // For mock purposes, infer role from email.
+    // E.g., "admin@test.com" will log in as an admin.
+    const derivedRole = email.split("@")[0].toLowerCase();
+    const validRoles = ["student", "teacher", "admin", "registrar"];
+    const role = validRoles.includes(derivedRole) ? derivedRole : "student";
+
 
     // Simulate API call
     setTimeout(() => {
@@ -75,13 +82,20 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setAuthState({
-        user: JSON.parse(storedUser),
-        isAuthenticated: true,
-        loading: false,
-      });
+    try {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setAuthState({
+          user: JSON.parse(storedUser),
+          isAuthenticated: true,
+          loading: false,
+        });
+      } else {
+        setAuthState((prev) => ({ ...prev, loading: false }));
+      }
+    } catch (error) {
+      console.error("Failed to parse user from localStorage", error);
+      setAuthState({ user: null, isAuthenticated: false, loading: false });
     }
   }, []);
 
@@ -91,3 +105,4 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
