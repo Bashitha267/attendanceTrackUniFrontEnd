@@ -1,10 +1,22 @@
-import { BarChart3, BookOpen, Edit, Eye, Plus, Search, Trash2, Users } from 'lucide-react';
-import { useState } from 'react';
+import { BarChart3, BookOpen, Edit, Eye, MailIcon, PhoneIcon, Plus, Search, ShieldIcon, Trash2, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import Header from '../Layout/Header';
 
 const AdminDashboard= () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showAddTeacher, setShowAddTeacher] = useState(false);
+  const[profileData,setProfileData]=useState([]);
+  useEffect(() => {
+    // Get user data from localStorage
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setProfileData(JSON.parse(storedUser));
+    }
+  }, []);
 
+  if (!profileData) {
+    return <p>No user data found</p>;
+  }
   // Mock data
   const stats = {
     totalStudents: 1250,
@@ -445,44 +457,56 @@ const AdminDashboard= () => {
 
       case 'profile':
         return (
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Admin Profile</h3>
-            <div className="flex items-start space-x-6">
-              <img
-                src="https://images.pexels.com/photos/3831849/pexels-photo-3831849.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=face"
-                alt="Profile"
-                className="w-24 h-24 rounded-full object-cover"
-              />
-              <div className="flex-1">
-                <div className="grid grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                    <p className="text-gray-900">Admin User</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                    <p className="text-gray-900">System Administrator</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <p className="text-gray-900">admin@university.edu</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                    <p className="text-gray-900">+1 (555) 123-4567</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
-                    <p className="text-gray-900">Information Technology</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Access Level</label>
-                    <p className="text-gray-900">Full System Access</p>
-                  </div>
+         <div className=" max-w-7xl  bg-white rounded-xl shadow-lg overflow-hidden font-sans border border-gray-200/80">
+      <div className="relative">
+        {/* Header Gradient */}
+        <div className="h-32 bg-[#9810FA]"></div>
+        
+        {/* Avatar */}
+        <div className="absolute left-1/2 -translate-x-1/2 -bottom-12 transform">
+          <img
+            className="w-32 h-32 rounded-full border-4 border-white object-cover shadow-md"
+            src={profileData.img}
+            alt="Admin Profile Avatar"
+          />
+        </div>
+      </div>
+
+      {/* Card Body */}
+      <div className="text-center px-6 pt-16 pb-8">
+        <h2 className="text-2xl font-bold text-gray-800">Admin</h2>
+        <p className="text-gray-500 mt-1 text-sm">System Administrator</p>
+        
+        {/* Profile Details */}
+        <div className="mt-8 text-left space-y-5">
+            <div className="flex items-center">
+                <MailIcon />
+                <div className="ml-4">
+                    <p className="text-xs text-gray-500">Email</p>
+                    <a href="mailto:nimeshspc2k17@gmail.com" className="text-sm font-medium text-gray-700 hover:text-purple-600">
+                        {profileData.email}
+                    </a>
                 </div>
-              </div>
             </div>
-          </div>
+             <div className="flex items-center">
+                <PhoneIcon />
+                <div className="ml-4">
+                    <p className="text-xs text-gray-500">Phone</p>
+                    <p className="text-sm font-medium text-gray-400 italic">{profileData.contact_no}</p>
+                </div>
+            </div>
+            <div className="flex items-center">
+                <ShieldIcon />
+                <div className="ml-4">
+                    <p className="text-xs text-gray-500">Access Level</p>
+                    <p className="text-sm font-medium text-gray-700">Full System Access</p>
+                </div>
+            </div>
+        </div>
+
+       
+      </div>
+    </div>
         );
 
       default:
@@ -499,14 +523,14 @@ const AdminDashboard= () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow-sm border-b">
+      {/* <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <h1 className="text-2xl font-bold text-red-600">Admin Dashboard</h1>
           </div>
         </div>
-      </div>
-
+      </div> */}
+    <Header/>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex space-x-8">
           <div className="w-64 space-y-2">
@@ -518,10 +542,10 @@ const AdminDashboard= () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
                     activeTab === tab.id
-                      ? 'bg-red-50 text-red-600 border-l-4 border-red-600'
-                      : 'text-gray-600 hover:bg-red-50 hover:text-red-600'
+                      ? 'bg-[#be64ff] text-white '
+                      : 'hover:text-[#9810FA] hover:border-l-4 hover:border-[#9810FA] '
                   }`}
-                >
+                >  
                   <Icon size={20} className="mr-3" />
                   {tab.label}
                 </button>
