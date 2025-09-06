@@ -1,3 +1,6 @@
+// src/App.jsx
+// Refined and simplified routing logic.
+
 import {
   Navigate,
   Route,
@@ -8,11 +11,20 @@ import {
 import AdminDashboard from "./Admin/Admin.jsx";
 import LoginPage from "./Auth/LoginPage.jsx";
 import RegisterPage from "./Auth/RegisterPage.jsx";
-
 import { AuthProvider, useAuth } from "./Context/AuthContext.jsx";
 import RegistrarDashboard from "./Registrar/Registrar.jsx";
 import StudentDashboard from "./Student/Student.jsx";
 import TeacherDashboard from "./Teacher/Teacher.jsx";
+
+// A reusable component for a consistent loading screen
+const LoadingScreen = () => (
+  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+      <p className="mt-4 text-gray-600">Loading...</p>
+    </div>
+  </div>
+);
 
 /**
  * A component to protect routes that require authentication and authorization.
@@ -21,50 +33,46 @@ import TeacherDashboard from "./Teacher/Teacher.jsx";
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, isAuthenticated, loading } = useAuth();
 
+  // 1. While checking auth state, show a loading screen.
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
+  // 2. If not authenticated, redirect to the login page.
   if (!isAuthenticated || !user) {
-    // Redirect them to the /login page, but save the current location they were
-    // trying to go to. This allows us to send them along to that page after a
-    // successful login.
     return <Navigate to="/login" replace />;
   }
 
-  // If the user's role is not in the list of allowed roles, redirect them.
-  // You might want to create a dedicated "Unauthorized" page for this.
+  // 3. If authenticated but the role is not allowed, redirect.
+  //    (Consider an "Unauthorized" page for a better user experience).
   if (!allowedRoles.includes(user.role)) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace />; // Or an unauthorized page
   }
 
+  // 4. If authenticated and authorized, render the component.
   return children;
 };
 
-// Component to handle the initial routing logic
+// Main component to define all application routes
 const AppRoutes = () => {
   const { user, isAuthenticated, loading } = useAuth();
 
+  // Show a loading screen on the very first load until auth status is determined.
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (
     <Routes>
+      {/* Public Routes */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+
+      {/* This is the key route for redirection.
+        - If the user is logged in, it redirects them from the root path "/"
+          to their specific dashboard, e.g., "/admin".
+        - If not logged in, it sends them to the "/login" page.
+      */}
       <Route
         path="/"
         element={
@@ -75,8 +83,6 @@ const AppRoutes = () => {
           )
         }
       />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
 
       {/* Protected Routes */}
       <Route
@@ -112,7 +118,7 @@ const AppRoutes = () => {
         }
       />
 
-      {/* Fallback route if no other route matches */}
+      {/* Fallback route to handle any undefined paths */}
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
@@ -122,6 +128,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
+        
         <AppRoutes />
       </AuthProvider>
     </Router>
@@ -129,4 +136,3 @@ function App() {
 }
 
 export default App;
-

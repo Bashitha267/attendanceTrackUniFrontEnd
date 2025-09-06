@@ -1,5 +1,7 @@
+import { jwtDecode } from "jwt-decode";
 import { createContext, useContext, useEffect, useState } from "react";
-
+// import { Navigate } from "react-router-dom";
+// const navigate = useNavigate();
 const AuthContext = createContext(undefined);
 
 export const useAuth = () => {
@@ -14,69 +16,76 @@ export const AuthProvider = ({ children }) => {
   const [authState, setAuthState] = useState({
     user: null,
     isAuthenticated: false,
-    loading: true, // Start loading until we check localStorage
+    loading: true,
+    error: null, // Manages login error messages
   });
 
   const login = async (email, password) => {
-    setAuthState((prev) => ({ ...prev, loading: true }));
+    // Clear previous errors and set loading state
+    setAuthState((prev) => ({
+      ...prev,
+      loading: true,
+      error: null,
+    }));
 
-    // For mock purposes, infer role from email.
-    // E.g., "admin@test.com" will log in as an admin.
-    const derivedRole = email.split("@")[0].toLowerCase();
-    const validRoles = ["student", "teacher", "admin", "registrar"];
-    const role = validRoles.includes(derivedRole) ? derivedRole : "student";
 
+    try {
+      const response = await fetch('http://localhost:5000/users/login', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+        credentials: "include", // Required for sending/receiving cookies cross-origin
+      });
 
-    // Simulate API call
-    setTimeout(() => {
-      const mockUser = {
-        id: "1",
-        email,
-        name: "John Doe",
-        role: role,
-        avatar: "/api/placeholder/100/100",
-        createdAt: new Date().toISOString(),
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Login failed. Please try again.");
+      }
+
+      const decodedToken = jwtDecode(data.token);
+
+      const userPayload = {
+        id: decodedToken.reg_no,
+        email: decodedToken.email,
+        name: decodedToken.name,
+        role: decodedToken.role,
+        avatar: decodedToken.image,
       };
 
       setAuthState({
-        user: mockUser,
+        user: userPayload,
         isAuthenticated: true,
         loading: false,
+        error: null,
       });
 
-      localStorage.setItem("user", JSON.stringify(mockUser));
-    }, 1000);
-  };
+      localStorage.setItem("user", JSON.stringify(userPayload));
+      // navigate("/");
 
-  const register = async (userData) => {
-    setAuthState((prev) => ({ ...prev, loading: true }));
-
-    // Simulate API call
-    setTimeout(() => {
-      const mockUser = {
-        id: Date.now().toString(),
-        email: userData.email,
-        name: userData.name,
-        role: userData.role,
-        avatar: "/api/placeholder/100/100",
-        createdAt: new Date().toISOString(),
-      };
-
+    } catch (error) {
+      console.error("Login failed:", error);
       setAuthState({
-        user: mockUser,
-        isAuthenticated: true,
+        user: null,
+        isAuthenticated: false,
         loading: false,
+        error: error.message, // Store the error message in the state
       });
-
-      localStorage.setItem("user", JSON.stringify(mockUser));
-    }, 1000);
+    }
   };
 
   const logout = () => {
+    // For a complete solution, call a backend endpoint here to clear the httpOnly cookie.
+    // const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+    // fetch(`${apiUrl}/users/logout`, { method: 'POST', credentials: 'include' });
+
     setAuthState({
       user: null,
       isAuthenticated: false,
       loading: false,
+      error: null,
     });
     localStorage.removeItem("user");
   };
@@ -89,20 +98,25 @@ export const AuthProvider = ({ children }) => {
           user: JSON.parse(storedUser),
           isAuthenticated: true,
           loading: false,
+          error: null,
         });
       } else {
         setAuthState((prev) => ({ ...prev, loading: false }));
       }
     } catch (error) {
       console.error("Failed to parse user from localStorage", error);
-      setAuthState({ user: null, isAuthenticated: false, loading: false });
+      setAuthState({
+        user: null,
+        isAuthenticated: false,
+        loading: false,
+        error: null,
+      });
     }
   }, []);
 
   return (
-    <AuthContext.Provider value={{ ...authState, login, register, logout }}>
+    <AuthContext.Provider value={{ ...authState, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
-
