@@ -1,4 +1,5 @@
-import { BarChart3, BookOpen, Edit, Eye, MailIcon, PhoneIcon, Plus, Search, ShieldIcon, Trash2, Users } from 'lucide-react';
+import axios from 'axios';
+import { BarChart3, BookOpen, ClipboardList, Edit, Eye, GraduationCapIcon, Grid2X2, Hourglass, MailIcon, PhoneIcon, Plus, Search, ShieldIcon, Trash2, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import Header from '../Layout/Header';
 
@@ -6,6 +7,106 @@ const AdminDashboard= () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showAddTeacher, setShowAddTeacher] = useState(false);
   const[profileData,setProfileData]=useState([]);
+  const [openApproveFilter,setOpenApprovefilter]=useState(false)
+  const[activeApprove,setActiveApprove]=useState("all")
+  const [toast, setToast] = useState({message:"",type:''});
+  // const[trigerApprove,settrigerApprove]=useState(false)
+   useEffect(() => {
+    // Check if there's a message to display
+    if (toast.message) {
+      // Set a timer
+      const timer = setTimeout(() => {
+        // After 3 seconds, reset the toast state to hide it
+        setToast({ message: "", type: false });
+      }, 3000); // 3000 milliseconds = 3 seconds
+
+      // This is a cleanup function
+      // It will clear the timer if the component unmounts or if a new toast appears
+      return () => clearTimeout(timer);
+    }
+  }, [toast]); // The effect runs whenever the 'toast' state changes
+
+  const activeroles=[
+    {id:'all',
+      icon:Grid2X2
+    },
+    {id:'student',
+      icon:GraduationCapIcon
+    },
+    {id:'lecturer',
+      icon:BookOpen
+    },
+    {id:'registrar',
+      icon:ClipboardList
+    }
+  ];
+  const[pendingApprovels,setPendingApprovels]=useState([])
+  const[filteredApprovels,setFilterdApprovels]=useState([])
+  useEffect(() => {
+  const getApprovels = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/users/getnotapproved");
+      const data = await res.json();
+
+      if (Array.isArray(data.users) && data.users.length > 0) {
+        setPendingApprovels(data.users);
+        setFilterdApprovels(data.users);
+      } else {
+        console.log("array is empty");
+      }
+    } catch (e) {
+      console.error("Failed to fetch approvals:", e);
+    }
+    
+  };
+
+  getApprovels(); 
+}, []);
+const addApprove = async (reg_no) => {
+  try {
+    const response = await axios.put(`http://localhost:5000/users/approve/${reg_no}`);
+    if (response.data.success) {
+      setToast({ message: "Approving success", type: true });
+      // remove from local state immediately
+      setPendingApprovels(prev => prev.filter(user => user.reg_no !== reg_no));
+      setFilterdApprovels(prev => prev.filter(user => user.reg_no !== reg_no));
+    } else {
+      setToast({ message: "Error Cannot perform Approvel", type: false });
+    }
+  } catch (error) {
+    setToast({ message: "Error approving user", type: false });
+  }
+};
+
+const removeUser = async (reg_no) => {
+  try {
+    const response = await axios.delete(`http://localhost:5000/users/deleteuser/${reg_no}`);
+    if (response.data.success) {
+      setToast({ message: "User removed successfully", type: true });
+      // remove from local state immediately
+      setPendingApprovels(prev => prev.filter(user => user.reg_no !== reg_no));
+      setFilterdApprovels(prev => prev.filter(user => user.reg_no !== reg_no));
+    } else {
+      setToast({ message: "Error removing user", type: false });
+    }
+  } catch (error) {
+    setToast({ message: "Error removing user", type: false });
+  }
+};
+  useEffect(() => {
+  if (pendingApprovels.length > 0) {
+    if (activeApprove === "all") {
+      setFilterdApprovels(pendingApprovels);
+    } else {
+      const filtering = pendingApprovels.filter(
+        (item) => item.role === activeApprove
+      );
+      setFilterdApprovels(filtering);
+    }
+  } else {
+    setFilterdApprovels([]); // clear list if no data
+  }
+}, [activeApprove, pendingApprovels]);
   useEffect(() => {
     // Get user data from localStorage
     const storedUser = localStorage.getItem("user");
@@ -508,6 +609,62 @@ const AdminDashboard= () => {
       </div>
     </div>
         );
+        case 'pending':
+          return(
+            <div className='flex flex-col gap-4'>
+              <div className='flex flex-row justify-between mx-4'>
+              <div className='text-2xl font-extrabold'>Pending Requests</div>
+                <div className=''>
+                  <button onClick={()=>(
+                    setOpenApprovefilter(!openApproveFilter)
+                  )} id="dropdownHoverButton"   data-dropdown-trigger="hover" class=" text-center inline-flex items-center text-xl" type="button">Filter<svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+</svg>
+</button>
+
+{/* <!-- Dropdown menu --> */}
+<div id="dropdownHover" className={ openApproveFilter ?`z-10  bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 absolute  `:'hidden'}>
+    <ul class="py-2 text-sm text-black" aria-labelledby="dropdownHoverButton">
+      {activeroles.map((role) => {
+  const RoleIcon = role.icon;
+  return (
+    <li key={role.id}>
+      <div
+        onClick={() => setActiveApprove(role.id)}
+        className={`${activeApprove === role.id ? 
+          'bg-purple-700 text-white' : ''} 
+          px-4 py-2 flex flex-row gap-4 items-center 
+          hover:bg-purple-400 hover:text-white cursor-pointer`}
+      >
+        <RoleIcon size={20} />
+        <span className="font-bold text-md capitalize">{role.id}</span>
+      </div>
+    </li>
+  );
+})}
+      
+    </ul>
+</div>
+                </div>
+              </div>
+              <div className='flex flex-col gap-2  mb-3 '>{filteredApprovels.map((request)=>(
+                <div className='flex flex-row justify-between  mb-2 py-3 shadow-sm shadow-gray-400 items-center mx-4 px-5 hover:bg-gray-200'>
+                  <div>{request.reg_no}</div>
+                  <div>{request.name}</div>
+                  <div>{request.email}</div>
+                  <div>{request.role}</div>
+
+                  <div className='flex flex-row gap-3 '>
+                  <div><button className='bg-green-100 border-2 border-green-500 rounded-xl px-3 py-2 hover:bg-green-300 hover:text-white transition-colors duration-150' onClick={()=>addApprove(request.reg_no)}>Approve</button></div>
+                  <div><button className='bg-red-100  border-2 border-red-500 rounded-xl px-3 py-2 hover:bg-red-300 hover:text-white transition-colors duration-150' onClick={()=>removeUser(request.reg_no)}>Remove</button></div>
+                  </div>
+
+
+                </div>
+              ))}</div>
+
+            </div>
+          )
 
       default:
         return null;
@@ -519,6 +676,7 @@ const AdminDashboard= () => {
     { id: 'teachers', label: 'Teachers', icon: Users },
     { id: 'courses', label: 'Courses', icon: BookOpen },
     { id: 'profile', label: 'Profile', icon: Users },
+    {id:'pending',label:'Pending Approvel',icon:Hourglass}
   ];
 
   return (
@@ -542,7 +700,7 @@ const AdminDashboard= () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
                     activeTab === tab.id
-                      ? 'bg-[#be64ff] text-white '
+                      ? 'bg-purple-700 text-white '
                       : 'hover:text-[#9810FA] hover:border-l-4 hover:border-[#9810FA] '
                   }`}
                 >  
@@ -555,6 +713,15 @@ const AdminDashboard= () => {
 
           <div className="flex-1">
             {renderContent()}
+            {toast.message && (
+  <div
+    className={`fixed top-48  translate-y-14 -translate-x-14 right-0 px-4 py-2 rounded shadow-lg  ${
+      toast.type === true ? "bg-green-200 border-2 border-green-500" : "bg-red-500 border-2 border-red-500"
+    } transition-all duration-300`}
+  >
+    {toast.message}
+  </div>
+)}
           </div>
         </div>
       </div>

@@ -63,6 +63,7 @@ export const AuthProvider = ({ children }) => {
       });
 
       localStorage.setItem("user", JSON.stringify(userPayload));
+      return true;
       // navigate("/");
 
     } catch (error) {
@@ -73,6 +74,7 @@ export const AuthProvider = ({ children }) => {
         loading: false,
         error: error.message, // Store the error message in the state
       });
+      return false;
     }
   };
 

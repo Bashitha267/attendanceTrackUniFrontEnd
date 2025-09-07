@@ -10,12 +10,15 @@ const LoginPage = () => {
   const { login, loading, error } = useAuth(); 
   const navigate = useNavigate();
 
-  const handleSignIn = (e) => {
+  const handleSignIn = async (e) => {
     e.preventDefault();
     // The login function from AuthContext will handle the state update.
     // The routing logic in App.jsx will automatically redirect upon successful login.
-    navigate('/')
-    login(email, password);
+    const success=await login(email, password);
+    if(success){
+      navigate('/')
+    }
+
   };
 
   return (

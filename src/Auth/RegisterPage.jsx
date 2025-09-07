@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BookOpenText, ClipboardList, GraduationCap } from "lucide-react";
+import { BookOpenText, ClipboardList, GraduationCap, LoaderCircle } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -8,6 +8,7 @@ const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [errMessage, setErrMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const[loading,setLoading]=useState(false)
   const [otp, setOtp] = useState(""); // User's OTP input
   const navigate = useNavigate();
 
@@ -28,7 +29,7 @@ const RegisterPage = () => {
   const roles = [
     { role: "student", icon: GraduationCap },
     { role: "lecturer", icon: BookOpenText },
-    { role: "registrar", icon: ClipboardList },
+    { role: "registor", icon: ClipboardList },
   ];
 
   const handleInputChange = (e) => {
@@ -38,21 +39,26 @@ const RegisterPage = () => {
   const handleEmailVerification = async () => {
     setErrMessage("");
     setSuccessMessage("");
+    setLoading(true)
     try {
+      
       const res = await axios.post(
         "http://localhost:5000/users/sendmail",
         { email: formData.email, otp: otp }
       );
       if (res.data.success) {
         setSuccessMessage("Verification Success! Pending Admin Approval. Redirecting to login...");
+        setLoading(false)
         setTimeout(() => {
           navigate("/login"); // Redirect to login after a short delay
-        }, 5000);
+        }, 3000);
       } else {
         setErrMessage(res.data.message || "Invalid OTP. Please try again.");
+        setLoading(false)
       }
     } catch (error) {
       setErrMessage(error.response?.data?.message || "An error occurred during verification.");
+      setLoading(false)
       console.error("OTP verification error:", error);
     }
   };
@@ -69,11 +75,13 @@ const RegisterPage = () => {
 
     try {
       // This single call now handles user creation and sending the OTP email
+      setLoading(true)
       const res = await axios.post("http://localhost:5000/users/signup", formData);
       
       if (res.data.success) {
+        setLoading(false)
         setView("confirmEmail");
-        setSuccessMessage("Registration initiated! An OTP has been sent to your email.");
+        setSuccessMessage("An OTP has been sent to your email.");
       } else {
         // Handle backend-specific errors like "Email already registered"
         setErrMessage(res.data.message || "Registration failed. Please try again.");
@@ -165,8 +173,11 @@ const RegisterPage = () => {
             {errMessage && <div className="border border-red-500 bg-red-50 text-red-600 px-4 py-2 rounded text-center text-sm mt-2">{errMessage}</div>}
 
             <div className="mt-4">
-              <button type="submit" className="bg-purple-600 w-full rounded-lg h-11 text-white font-semibold hover:bg-purple-700 transition-colors duration-300">
+              <button type="submit" className={`${loading?'hidden':'bg-purple-600 w-full rounded-lg h-11 text-white font-semibold hover:bg-purple-700 transition-colors duration-300'}`}>
                 Register
+              </button>
+              <button type="submit" className={`${loading ?'bg-purple-600 w-full rounded-lg h-11 text-center text-white font-semibold hover:bg-purple-700 transition-colors duration-300 flex items-center justify-center':'hidden'}`}>
+                <LoaderCircle  size={24} className="animate-spin text-center"></LoaderCircle>
               </button>
             </div>
 
