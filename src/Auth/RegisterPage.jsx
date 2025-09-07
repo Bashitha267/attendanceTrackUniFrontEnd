@@ -43,7 +43,7 @@ const RegisterPage = () => {
     try {
       
       const res = await axios.post(
-        "http://localhost:5000/users/sendmail",
+        "https://attendance-uni-backend.vercel.app/users/sendmail",
         { email: formData.email, otp: otp }
       );
       if (res.data.success) {
@@ -76,7 +76,7 @@ const RegisterPage = () => {
     try {
       // This single call now handles user creation and sending the OTP email
       setLoading(true)
-      const res = await axios.post("http://localhost:5000/users/signup", formData);
+      const res = await axios.post("https://attendance-uni-backend.vercel.app/users/signup", formData);
       
       if (res.data.success) {
         setLoading(false)

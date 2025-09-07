@@ -45,7 +45,7 @@ const AdminDashboard= () => {
   useEffect(() => {
   const getApprovels = async () => {
     try {
-      const res = await fetch("http://localhost:5000/users/getnotapproved");
+      const res = await fetch("https://attendance-uni-backend.vercel.app/users/getnotapproved");
       const data = await res.json();
 
       if (Array.isArray(data.users) && data.users.length > 0) {
@@ -64,7 +64,7 @@ const AdminDashboard= () => {
 }, []);
 const addApprove = async (reg_no) => {
   try {
-    const response = await axios.put(`http://localhost:5000/users/approve/${reg_no}`);
+    const response = await axios.put(`https://attendance-uni-backend.vercel.app/users/approve/${reg_no}`);
     if (response.data.success) {
       setToast({ message: "Approving success", type: true });
       // remove from local state immediately
@@ -80,7 +80,7 @@ const addApprove = async (reg_no) => {
 
 const removeUser = async (reg_no) => {
   try {
-    const response = await axios.delete(`http://localhost:5000/users/deleteuser/${reg_no}`);
+    const response = await axios.delete(`https://attendance-uni-backend.vercel.app/users/deleteuser/${reg_no}`);
     if (response.data.success) {
       setToast({ message: "User removed successfully", type: true });
       // remove from local state immediately
