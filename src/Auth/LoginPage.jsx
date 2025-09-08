@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext.jsx";
-
+import logo from "../assets/logo.jpg";
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,10 +25,13 @@ const LoginPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-100 to-indigo-200 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden">
         <form onSubmit={handleSignIn}>
+
           <div className="flex flex-col gap-4 p-8">
-            <div className="text-2xl font-bold text-center mb-4 text-gray-800">
-              Welcome Back
+            <div className="flex justify-center flex-row">
+            <img src={logo} className="h-fit w-32 object-cover"></img>
+
             </div>
+            
 
             
 
