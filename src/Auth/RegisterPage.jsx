@@ -53,11 +53,12 @@ const RegisterPage = () => {
           navigate("/login"); // Redirect to login after a short delay
         }, 3000);
       } else {
-        setErrMessage(res.data.message || "Invalid OTP. Please try again.");
         setLoading(false)
+
+        setErrMessage("Invalid OTP. Please try again.");
       }
     } catch (error) {
-      setErrMessage(error.response?.data?.message || "An error occurred during verification.");
+      setErrMessage("An error occurred during verification.");
       setLoading(false)
       console.error("OTP verification error:", error);
     }
@@ -74,7 +75,6 @@ const RegisterPage = () => {
     }
 
     try {
-      // This single call now handles user creation and sending the OTP email
       setLoading(true)
       const res = await axios.post("https://attendance-uni-backend.vercel.app/users/signup", formData);
       
@@ -83,13 +83,16 @@ const RegisterPage = () => {
         setView("confirmEmail");
         setSuccessMessage("An OTP has been sent to your email.");
       } else {
-        // Handle backend-specific errors like "Email already registered"
-        setErrMessage(res.data.message || "Registration failed. Please try again.");
+      setLoading(false)
+
+        setErrMessage("Registration failed. Please try again.");
       }
     } catch (err) {
       console.error("Signup error:", err);
+      setLoading(false)
+
       setErrMessage(
-        err.response?.data?.message || "An unexpected error occurred."
+       "An unexpected server error occurred."
       );
     }
   };
@@ -147,18 +150,34 @@ const RegisterPage = () => {
               Create an Account
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[50vh] overflow-y-auto pr-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[50vh] overflow-y-auto pr-2 pl-1 pb-1">
               <InputField label="Name" name="name" value={formData.name} onChange={handleInputChange} />
               <InputField label="Reg No" name="reg_no" value={formData.reg_no} onChange={handleInputChange} />
               <InputField label="Email" name="email" type="email" value={formData.email} onChange={handleInputChange} />
               <InputField label="Contact No" name="contact_no" value={formData.contact_no} onChange={handleInputChange} />
               <InputField label="Date Of Birth" name="dob" type="date" value={formData.dob} onChange={handleInputChange} />
-              <InputField label="Gender" name="gender" value={formData.gender} onChange={handleInputChange} />
+              <div>
+                <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
+  Gender
+</label>
+<select
+  id="gender"
+  name="gender"
+  value={formData.gender}
+  onChange={handleInputChange}
+  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-purple-500 focus:outline-0  focus:ring-2 sm:text-sm py-2.5"
+>
+  <option value="" disabled>Select gender</option>
+  <option value="male">Male</option>
+  <option value="female">Female</option>
+</select>
+              </div>
+              
               <InputField label="Password" name="password" type={showPassword ? "text" : "password"} value={formData.password} onChange={handleInputChange} />
               <InputField label="Confirm Password" name="confirmPassword" type={showPassword ? "text" : "password"} value={formData.confirmPassword} onChange={handleInputChange} />
             </div>
 
-            <div className="flex flex-col mt-2">
+            <div className="flex flex-col mt-1">
               <label className="mb-1 font-semibold text-gray-600">Role</label>
               <div className="flex flex-wrap gap-2">
                 {roles.map(({ role, icon: Icon }) => (
@@ -173,7 +192,7 @@ const RegisterPage = () => {
             {errMessage && <div className="border border-red-500 bg-red-50 text-red-600 px-4 py-2 rounded text-center text-sm mt-2">{errMessage}</div>}
 
             <div className="mt-4">
-              <button type="submit" className={`${loading?'hidden':'bg-purple-600 w-full rounded-lg h-11 text-white font-semibold hover:bg-purple-700 transition-colors duration-300'}`}>
+              <button type="submit" className={`${loading?'hidden':'bg-purple-500 w-full rounded-lg h-11 text-white font-semibold hover:bg-purple-800 transition-colors duration-300'}`}>
                 Register
               </button>
               <button type="submit" className={`${loading ?'bg-purple-600 w-full rounded-lg h-11 text-center text-white font-semibold hover:bg-purple-700 transition-colors duration-300 flex items-center justify-center':'hidden'}`}>

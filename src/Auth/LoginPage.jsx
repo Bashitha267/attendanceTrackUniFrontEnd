@@ -74,7 +74,7 @@ const LoginPage = () => {
               <button 
                 type="submit"
                 disabled={loading}
-                className="bg-purple-600 w-full rounded-lg h-11 text-white font-semibold hover:bg-purple-700 transition-colors duration-300 disabled:bg-gray-400"
+                className="bg-purple-500 w-full rounded-lg h-11 text-white font-semibold hover:bg-purple-800 transition-colors duration-300 disabled:bg-gray-400"
               >
                 {loading ? "Logging in..." : "Login"}
               </button>

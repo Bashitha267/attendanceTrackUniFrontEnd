@@ -93,10 +93,11 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+      {/* lecturer','registor */}
       <Route
-        path="/teacher"
+        path="/lecturer"
         element={
-          <ProtectedRoute allowedRoles={["teacher"]}>
+          <ProtectedRoute allowedRoles={["lecturer"]}>
             <TeacherDashboard />
           </ProtectedRoute>
         }
@@ -110,9 +111,9 @@ const AppRoutes = () => {
         }
       />
       <Route
-        path="/registrar"
+        path="/registor"
         element={
-          <ProtectedRoute allowedRoles={["registrar"]}>
+          <ProtectedRoute allowedRoles={["registor"]}>
             <RegistrarDashboard />
           </ProtectedRoute>
         }
