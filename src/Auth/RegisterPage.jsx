@@ -85,7 +85,7 @@ const RegisterPage = () => {
       } else {
       setLoading(false)
 
-        setErrMessage("Registration failed. Please try again.");
+        setErrMessage(res.data.message);
       }
     } catch (err) {
       console.error("Signup error:", err);
