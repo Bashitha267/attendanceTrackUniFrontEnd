@@ -1,553 +1,233 @@
 import axios from 'axios';
-import { BarChart3, BookOpen, ClipboardList, Edit, Eye, GraduationCapIcon, Grid2X2, Hourglass, MailIcon, PhoneIcon, Plus, Search, ShieldIcon, Trash2, Users } from 'lucide-react';
+import { BookOpen, ClipboardList, GraduationCapIcon, Grid2X2, Hourglass, Loader2Icon, MailIcon, Menu, PhoneIcon, Plus, ShieldIcon, Trash2Icon, User, Users, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import Header from '../Layout/Header';
 
-const AdminDashboard= () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [showAddTeacher, setShowAddTeacher] = useState(false);
-  const[profileData,setProfileData]=useState([]);
-  const [openApproveFilter,setOpenApprovefilter]=useState(false)
-  const[activeApprove,setActiveApprove]=useState("all")
-  const [toast, setToast] = useState({message:"",type:''});
-  // const[trigerApprove,settrigerApprove]=useState(false)
-   useEffect(() => {
-    // Check if there's a message to display
-    if (toast.message) {
-      // Set a timer
-      const timer = setTimeout(() => {
-        // After 3 seconds, reset the toast state to hide it
-        setToast({ message: "", type: false });
-      }, 3000); // 3000 milliseconds = 3 seconds
+const AdminDashboard = () => {
+  const [activeTab, setActiveTab] = useState('courses');
+  const [profileData, setProfileData] = useState([]);
+  const [openApproveFilter, setOpenApprovefilter] = useState(false);
+  const [activeApprove, setActiveApprove] = useState("all");
+  const [showAddCourse, setShowAddCourse] = useState(false);
+  const [toast, setToast] = useState({ message: "", type: '' });
+  const [courseLoading, setCourseLoading] = useState(false);
+  const [subjects, setSubjects] = useState([]);
+  const [subjectsloading, setSubjectsloading] = useState(false);
+  const [filterBatchYear, setFilterBatchYear] = useState('');
+  const [filterYear, setFilterYear] = useState('');
+  const [filterSemester, setFilterSemester] = useState('');
+  const [filteredSubjects, setFilteredSubjects] = useState([]);
+  const [pendingApprovels, setPendingApprovels] = useState([]);
+  const [filteredApprovels, setFilterdApprovels] = useState([]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-      // This is a cleanup function
-      // It will clear the timer if the component unmounts or if a new toast appears
+  const activeroles = [
+    { id: 'all', icon: Grid2X2 },
+    { id: 'student', icon: GraduationCapIcon },
+    { id: 'lecturer', icon: BookOpen },
+    { id: 'registrar', icon: ClipboardList }
+  ];
+
+  const [formDataCourse, setFormDataCourse] = useState({
+    subjectCode: "",
+    name: "",
+    year: "",
+    semester: "",
+    lecturerId: "",
+    batchYear: ""
+  });
+
+  useEffect(() => {
+    if (toast.message) {
+      const timer = setTimeout(() => setToast({ message: "", type: '' }), 3000);
       return () => clearTimeout(timer);
     }
-  }, [toast]); // The effect runs whenever the 'toast' state changes
+  }, [toast]);
 
-  const activeroles=[
-    {id:'all',
-      icon:Grid2X2
-    },
-    {id:'student',
-      icon:GraduationCapIcon
-    },
-    {id:'lecturer',
-      icon:BookOpen
-    },
-    {id:'registrar',
-      icon:ClipboardList
-    }
-  ];
-  const[pendingApprovels,setPendingApprovels]=useState([])
-  const[filteredApprovels,setFilterdApprovels]=useState([])
   useEffect(() => {
-  const getApprovels = async () => {
-    try {
-      const res = await fetch("https://attendance-uni-backend.vercel.app/users/getnotapproved");
-      const data = await res.json();
-
-      if (Array.isArray(data.users) && data.users.length > 0) {
-        setPendingApprovels(data.users);
-        setFilterdApprovels(data.users);
-      } else {
-        console.log("array is empty");
-      }
-    } catch (e) {
-      console.error("Failed to fetch approvals:", e);
-    }
-    
-  };
-
-  getApprovels(); 
-}, []);
-const addApprove = async (reg_no) => {
-  try {
-    const response = await axios.put(`https://attendance-uni-backend.vercel.app/users/approve/${reg_no}`);
-    if (response.data.success) {
-      setToast({ message: "Approving success", type: true });
-      // remove from local state immediately
-      setPendingApprovels(prev => prev.filter(user => user.reg_no !== reg_no));
-      setFilterdApprovels(prev => prev.filter(user => user.reg_no !== reg_no));
-    } else {
-      setToast({ message: "Error Cannot perform Approvel", type: false });
-    }
-  } catch (error) {
-    setToast({ message: "Error approving user", type: false });
-  }
-};
-
-const removeUser = async (reg_no) => {
-  try {
-    const response = await axios.delete(`https://attendance-uni-backend.vercel.app/users/deleteuser/${reg_no}`);
-    if (response.data.success) {
-      setToast({ message: "User removed successfully", type: true });
-      // remove from local state immediately
-      setPendingApprovels(prev => prev.filter(user => user.reg_no !== reg_no));
-      setFilterdApprovels(prev => prev.filter(user => user.reg_no !== reg_no));
-    } else {
-      setToast({ message: "Error removing user", type: false });
-    }
-  } catch (error) {
-    setToast({ message: "Error removing user", type: false });
-  }
-};
-  useEffect(() => {
-  if (pendingApprovels.length > 0) {
-    if (activeApprove === "all") {
-      setFilterdApprovels(pendingApprovels);
-    } else {
-      const filtering = pendingApprovels.filter(
-        (item) => item.role === activeApprove
-      );
-      setFilterdApprovels(filtering);
-    }
-  } else {
-    setFilterdApprovels([]); // clear list if no data
-  }
-}, [activeApprove, pendingApprovels]);
-  useEffect(() => {
-    // Get user data from localStorage
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setProfileData(JSON.parse(storedUser));
-    }
+    if (storedUser) setProfileData(JSON.parse(storedUser));
   }, []);
 
-  if (!profileData) {
-    return <p>No user data found</p>;
-  }
-  // Mock data
-  const stats = {
-    totalStudents: 1250,
-    totalTeachers: 45,
-    totalCourses: 78,
-    averageAttendance: 84,
+  useEffect(() => {
+    const getApprovels = async () => {
+      try {
+        const res = await fetch("https://attendance-uni-backend.vercel.app/users/getnotapproved");
+        const data = await res.json();
+        if (Array.isArray(data.users)) {
+          setPendingApprovels(data.users);
+          setFilterdApprovels(data.users);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    getApprovels();
+  }, []);
+
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      try {
+        setSubjectsloading(true);
+        const response = await axios.get('https://attendance-uni-backend.vercel.app/subjects/getsubjects');
+        if (response.data.success) setSubjects(response.data.subjects);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setSubjectsloading(false);
+      }
+    };
+    fetchSubjects();
+  }, []);
+
+  useEffect(() => {
+    const filtered = subjects.filter(subject => {
+      const matchBatchYear = filterBatchYear ? subject.batchYear === Number(filterBatchYear) : true;
+      const matchYear = filterYear ? subject.year === Number(filterYear) : true;
+      const matchSemester = filterSemester ? subject.semester === Number(filterSemester) : true;
+      return matchBatchYear && matchYear && matchSemester;
+    });
+    setFilteredSubjects(filtered);
+  }, [subjects, filterBatchYear, filterYear, filterSemester]);
+
+  useEffect(() => {
+    if (pendingApprovels.length > 0) {
+      if (activeApprove === "all") setFilterdApprovels(pendingApprovels);
+      else setFilterdApprovels(pendingApprovels.filter(item => item.role === activeApprove));
+    } else setFilterdApprovels([]);
+  }, [activeApprove, pendingApprovels]);
+
+  const handleInputChangeCourse = (e) => setFormDataCourse({ ...formDataCourse, [e.target.name]: e.target.value });
+
+  const handleSubmitCourse = async (e) => {
+    e.preventDefault();
+    try {
+      setCourseLoading(true);
+      const res = await axios.post("https://attendance-uni-backend.vercel.app/subjects/create", formDataCourse);
+      setCourseLoading(false);
+      if (res.data.success) {
+        setToast({ message: "Course added successfully", type: true });
+        setShowAddCourse(false);
+        setFormDataCourse({ subjectCode: "", name: "", year: "", semester: "", lecturerId: "", batchYear: "" });
+      } else setToast({ message: "Failed to add course", type: false });
+    } catch (error) {
+      setCourseLoading(false);
+      setToast({ message: "Enter valid details", type: false });
+    }
   };
 
-  const teachers = [
-    { 
-      id: '1', 
-      name: 'Dr. Sarah Johnson', 
-      email: 'sarah@edu.com', 
-      department: 'Computer Science',
-      courses: 3,
-      experience: '8 years'
-    },
-    { 
-      id: '2', 
-      name: 'Prof. Michael Brown', 
-      email: 'michael@edu.com', 
-      department: 'Mathematics',
-      courses: 2,
-      experience: '12 years'
-    },
-    { 
-      id: '3', 
-      name: 'Dr. Emily Davis', 
-      email: 'emily@edu.com', 
-      department: 'Physics',
-      courses: 4,
-      experience: '6 years'
-    },
-  ];
+  const addApprove = async (reg_no) => {
+    try {
+      const response = await axios.put(`https://attendance-uni-backend.vercel.app/users/approve/${reg_no}`);
+      if (response.data.success) {
+        setToast({ message: "Approving success", type: true });
+        setPendingApprovels(prev => prev.filter(u => u.reg_no !== reg_no));
+        setFilterdApprovels(prev => prev.filter(u => u.reg_no !== reg_no));
+      } else setToast({ message: "Error Cannot perform Approvel", type: false });
+    } catch (error) {
+      setToast({ message: "Error approving user", type: false });
+    }
+  };
 
-  const courses = [
-    { 
-      id: '1', 
-      name: 'Computer Science 101', 
-      code: 'CS101', 
-      teacher: 'Dr. Sarah Johnson',
-      students: 35,
-      department: 'Computer Science'
-    },
-    { 
-      id: '2', 
-      name: 'Advanced Mathematics', 
-      code: 'MATH301', 
-      teacher: 'Prof. Michael Brown',
-      students: 28,
-      department: 'Mathematics'
-    },
-    { 
-      id: '3', 
-      name: 'Physics Fundamentals', 
-      code: 'PHY101', 
-      teacher: 'Dr. Emily Davis',
-      students: 42,
-      department: 'Physics'
-    },
-  ];
-
-  const AddTeacherForm = () => (
-    <div className="bg-white rounded-lg shadow-sm p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">Add New Teacher</h3>
-        <button
-          onClick={() => setShowAddTeacher(false)}
-          className="text-gray-500 hover:text-gray-700"
-        >
-          ×
-        </button>
-      </div>
-      
-      <form className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-            <input
-              type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-              placeholder="Enter full name"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input
-              type="email"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-              placeholder="Enter email address"
-            />
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Teacher Code</label>
-            <input
-              type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-              placeholder="Enter teacher code"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
-            <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
-              <option>Select department</option>
-              <option>Computer Science</option>
-              <option>Mathematics</option>
-              <option>Physics</option>
-              <option>Chemistry</option>
-              <option>Biology</option>
-            </select>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-            <input
-              type="tel"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-              placeholder="Enter phone number"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Experience (Years)</label>
-            <input
-              type="number"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-              placeholder="Years of experience"
-            />
-          </div>
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
-          <input
-            type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-            placeholder="Enter areas of specialization"
-          />
-        </div>
-        
-        <div className="flex justify-end space-x-3">
-          <button
-            type="button"
-            onClick={() => setShowAddTeacher(false)}
-            className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-          >
-            Add Teacher
-          </button>
-        </div>
-      </form>
-    </div>
-  );
+  const removeUser = async (reg_no) => {
+    try {
+      const response = await axios.delete(`https://attendance-uni-backend.vercel.app/users/deleteuser/${reg_no}`);
+      if (response.data.success) {
+        setToast({ message: "User removed successfully", type: true });
+        setPendingApprovels(prev => prev.filter(u => u.reg_no !== reg_no));
+        setFilterdApprovels(prev => prev.filter(u => u.reg_no !== reg_no));
+      } else setToast({ message: "Error removing user", type: false });
+    } catch (error) {
+      setToast({ message: "Error removing user", type: false });
+    }
+  };
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'dashboard':
-        return (
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900">System Overview</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <div className="flex items-center">
-                  <div className="p-2 bg-blue-50 rounded-lg">
-                    <Users className="text-blue-600" size={24} />
-                  </div>
-                  <div className="ml-4">
-                    <div className="text-2xl font-bold text-gray-900">{stats.totalStudents}</div>
-                    <div className="text-sm text-gray-600">Total Students</div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <div className="flex items-center">
-                  <div className="p-2 bg-green-50 rounded-lg">
-                    <Users className="text-green-600" size={24} />
-                  </div>
-                  <div className="ml-4">
-                    <div className="text-2xl font-bold text-gray-900">{stats.totalTeachers}</div>
-                    <div className="text-sm text-gray-600">Total Teachers</div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <div className="flex items-center">
-                  <div className="p-2 bg-purple-50 rounded-lg">
-                    <BookOpen className="text-purple-600" size={24} />
-                  </div>
-                  <div className="ml-4">
-                    <div className="text-2xl font-bold text-gray-900">{stats.totalCourses}</div>
-                    <div className="text-sm text-gray-600">Total Courses</div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <div className="flex items-center">
-                  <div className="p-2 bg-red-50 rounded-lg">
-                    <BarChart3 className="text-red-600" size={24} />
-                  </div>
-                  <div className="ml-4">
-                    <div className="text-2xl font-bold text-gray-900">{stats.averageAttendance}%</div>
-                    <div className="text-sm text-gray-600">Avg Attendance</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center text-sm">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-                    <span className="text-gray-600">New student enrolled in CS101</span>
-                    <span className="ml-auto text-gray-400">2 hours ago</span>
-                  </div>
-                  <div className="flex items-center text-sm">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                    <span className="text-gray-600">Teacher added new course</span>
-                    <span className="ml-auto text-gray-400">4 hours ago</span>
-                  </div>
-                  <div className="flex items-center text-sm">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full mr-3"></div>
-                    <span className="text-gray-600">Attendance marked for MATH301</span>
-                    <span className="ml-auto text-gray-400">6 hours ago</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Department Distribution</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Computer Science</span>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-20 bg-gray-200 rounded-full h-2">
-                        <div className="bg-red-600 h-2 rounded-full" style={{ width: '75%' }}></div>
-                      </div>
-                      <span className="text-sm text-gray-600">18</span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Mathematics</span>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-20 bg-gray-200 rounded-full h-2">
-                        <div className="bg-red-600 h-2 rounded-full" style={{ width: '60%' }}></div>
-                      </div>
-                      <span className="text-sm text-gray-600">12</span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Physics</span>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-20 bg-gray-200 rounded-full h-2">
-                        <div className="bg-red-600 h-2 rounded-full" style={{ width: '45%' }}></div>
-                      </div>
-                      <span className="text-sm text-gray-600">9</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'teachers':
-        return (
-          <div>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Teacher Management</h2>
-              <button
-                onClick={() => setShowAddTeacher(true)}
-                className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-              >
-                <Plus size={18} className="mr-2" />
-                Add Teacher
-              </button>
-            </div>
-
-            {showAddTeacher && <AddTeacherForm />}
-
-            <div className="bg-white rounded-lg shadow-sm mt-6">
-              <div className="p-6 border-b">
-                <div className="flex items-center space-x-4">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
-                    <input
-                      type="text"
-                      placeholder="Search teachers..."
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-                    />
-                  </div>
-                  <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
-                    <option>All Departments</option>
-                    <option>Computer Science</option>
-                    <option>Mathematics</option>
-                    <option>Physics</option>
-                  </select>
-                </div>
-              </div>
-              
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Teacher
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Department
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Courses
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Experience
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {teachers.map((teacher) => (
-                      <tr key={teacher.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <img
-                              src="https://images.pexels.com/photos/3831849/pexels-photo-3831849.jpeg?auto=compress&cs=tinysrgb&w=40&h=40&fit=crop&crop=face"
-                              alt=""
-                              className="w-10 h-10 rounded-full mr-3"
-                            />
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">{teacher.name}</div>
-                              <div className="text-sm text-gray-500">{teacher.email}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {teacher.department}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {teacher.courses} courses
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {teacher.experience}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <div className="flex space-x-2">
-                            <button className="text-blue-600 hover:text-blue-900">
-                              <Eye size={16} />
-                            </button>
-                            <button className="text-green-600 hover:text-green-900">
-                              <Edit size={16} />
-                            </button>
-                            <button className="text-red-600 hover:text-red-900">
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        );
-
       case 'courses':
         return (
           <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-gray-900">All Courses</h2>
-              <div className="flex space-x-3">
-                <div className="relative">
-                  <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
-                  <input
-                    type="text"
-                    placeholder="Search courses..."
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
-                  />
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <h2 className="text-xl font-semibold text-gray-900">Course Management</h2>
+              <button onClick={() => setShowAddCourse(true)} className="flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-900 text-white rounded-lg w-full sm:w-auto">
+                <Plus size={18} className="mr-2" /> Add Course
+              </button>
+            </div>
+            {showAddCourse && (
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900">Add New Course</h3>
+                  <button onClick={() => setShowAddCourse(false)} className="text-gray-500 hover:text-gray-700">
+                    <X size={28} className='text-gray-600 hover:text-gray-900' />
+                  </button>
                 </div>
-                <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
-                  <option>All Departments</option>
-                  <option>Computer Science</option>
-                  <option>Mathematics</option>
-                  <option>Physics</option>
+                <form className="space-y-4" onSubmit={handleSubmitCourse}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" name='name' placeholder="Course Name" value={formDataCourse.name} onChange={handleInputChangeCourse} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:outline-0" />
+                    <input type="text" name='subjectCode' placeholder="Course ID" value={formDataCourse.subjectCode} onChange={handleInputChangeCourse} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:outline-0" />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <input type="number" name='batchYear' placeholder="Academic Year" value={formDataCourse.batchYear} onChange={handleInputChangeCourse} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:outline-0" />
+                    <select name='year' value={formDataCourse.year} onChange={handleInputChangeCourse} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:outline-0">
+                      <option disabled value="">Year</option>
+                      <option value="1">1st Year</option>
+                      <option value="2">2nd Year</option>
+                      <option value="3">3rd Year</option>
+                      <option value="4">4th Year</option>
+                    </select>
+                    <select name='semester' value={formDataCourse.semester} onChange={handleInputChangeCourse} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:outline-0">
+                      <option disabled value="">Semester</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                    </select>
+                    <input type="text" name='lecturerId' placeholder="Lecture ID" value={formDataCourse.lecturerId} onChange={handleInputChangeCourse} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:outline-0" />
+                  </div>
+                  <div className="flex justify-end space-x-3">
+                    <button type="button" onClick={() => setShowAddCourse(false)} className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">Cancel</button>
+                    <button type="submit" className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-900 min-w-[110px]">
+                      {courseLoading ? <Loader2Icon size={24} className='animate-spin mx-auto' /> : "Add Course"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <h2 className="text-xl font-semibold text-gray-900">All Courses</h2>
+              <div className="flex flex-wrap gap-3 w-full md:w-auto">
+                <select value={filterBatchYear} onChange={e => setFilterBatchYear(e.target.value)} className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                  <option value="">Academic Year</option>
+                  <option value="2021">2021</option>
+                  <option value="2022">2022</option>
+                  <option value="2023">2023</option>
+                </select>
+                <select value={filterYear} onChange={e => setFilterYear(e.target.value)} className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                  <option value="">Year</option>
+                  <option value="1">1st</option>
+                  <option value="2">2nd</option>
+                  <option value="3">3rd</option>
+                  <option value="4">4th</option>
+                </select>
+                <select value={filterSemester} onChange={e => setFilterSemester(e.target.value)} className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                  <option value="">Semester</option>
+                  <option value="1">1st</option>
+                  <option value="2">2nd</option>
                 </select>
               </div>
             </div>
-
-            <div className="grid gap-6">
-              {courses.map((course) => (
-                <div key={course.id} className="bg-white rounded-lg shadow-sm p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
+            <div className="space-y-4">
+              {subjectsloading && <div className='flex justify-center mt-14'><Loader2Icon size={40} className='animate-spin text-purple-700' /></div>}
+              {!subjectsloading && filteredSubjects.map(course => (
+                <div key={course._id} className="bg-white rounded-lg shadow-lg hover:bg-gray-50 p-4 border-2 border-purple-200 hover:border-purple-400">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
                       <h3 className="text-lg font-semibold text-gray-900">{course.name}</h3>
-                      <p className="text-gray-600">{course.code} • {course.teacher}</p>
-                      <p className="text-sm text-gray-500">{course.department} Department</p>
+                      <p className="text-gray-800">Lecture ID: {course.lecturerId}</p>
+                      <p className="text-gray-800">{course.subjectCode}</p>
+                      <p className="text-sm text-gray-700">Year: {course.year}, Semester: {course.semester}, Batch: {course.batchYear}</p>
                     </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-red-600">{course.students}</div>
-                        <div className="text-sm text-gray-600">Students</div>
-                      </div>
-                      <div className="flex space-x-2">
-                        <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg">
-                          <Eye size={16} />
-                        </button>
-                        <button className="p-2 text-green-600 hover:bg-green-50 rounded-lg">
-                          <Edit size={16} />
-                        </button>
-                        <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
+                    <div className='flex gap-3 self-end sm:self-center'>
+                      <button className="p-2 hover:bg-gray-200 rounded-full"><User size={24} className="text-green-500" /></button>
+                      <button className="p-2 hover:bg-gray-200 rounded-full"><Trash2Icon size={24} className="text-red-500" /></button>
                     </div>
                   </div>
                 </div>
@@ -555,176 +235,112 @@ const removeUser = async (reg_no) => {
             </div>
           </div>
         );
-
       case 'profile':
         return (
-         <div className=" max-w-7xl  bg-white rounded-xl shadow-lg overflow-hidden font-sans border border-gray-200/80">
-      <div className="relative">
-        {/* Header Gradient */}
-        <div className="h-32 bg-[#9810FA]"></div>
-        
-        {/* Avatar */}
-        <div className="absolute left-1/2 -translate-x-1/2 -bottom-12 transform">
-          <img
-            className="w-32 h-32 rounded-full border-4 border-white object-cover shadow-md"
-            src={profileData.img}
-            alt="Admin Profile Avatar"
-          />
-        </div>
-      </div>
-
-      {/* Card Body */}
-      <div className="text-center px-6 pt-16 pb-8">
-        <h2 className="text-2xl font-bold text-gray-800">Admin</h2>
-        <p className="text-gray-500 mt-1 text-sm">System Administrator</p>
-        
-        {/* Profile Details */}
-        <div className="mt-8 text-left space-y-5">
-            <div className="flex items-center">
-                <MailIcon />
-                <div className="ml-4">
-                    <p className="text-xs text-gray-500">Email</p>
-                    <a href="mailto:nimeshspc2k17@gmail.com" className="text-sm font-medium text-gray-700 hover:text-purple-600">
-                        {profileData.email}
-                    </a>
-                </div>
+          <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden font-sans border border-gray-200/80">
+            <div className="relative">
+              <div className="h-32 bg-[#9810FA]"></div>
+              <div className="absolute left-1/2 -translate-x-1/2 -bottom-16 transform">
+                <img className="w-32 h-32 rounded-full border-4 border-white object-cover shadow-md" src={profileData.img || 'https://via.placeholder.com/150'} alt="Admin" />
+              </div>
             </div>
-             <div className="flex items-center">
-                <PhoneIcon />
-                <div className="ml-4">
-                    <p className="text-xs text-gray-500">Phone</p>
-                    <p className="text-sm font-medium text-gray-400 italic">{profileData.contact_no}</p>
-                </div>
+            <div className="text-center px-6 pt-20 pb-8">
+              <h2 className="text-2xl font-bold text-gray-800">{profileData.name || "Admin User"}</h2>
+              <p className="text-gray-500 mt-1 text-sm">System Administrator</p>
+              <div className="mt-8 text-left space-y-5 max-w-sm mx-auto">
+                <div className="flex items-center"><MailIcon /><div className="ml-4"><p className="text-xs text-gray-500">Email</p><a href={`mailto:${profileData.email}`} className="text-sm font-medium text-gray-700 hover:text-purple-600 break-all">{profileData.email}</a></div></div>
+                <div className="flex items-center"><PhoneIcon /><div className="ml-4"><p className="text-xs text-gray-500">Phone</p><p className="text-sm font-medium text-gray-700">{profileData.contact_no || "Not Available"}</p></div></div>
+                <div className="flex items-center"><ShieldIcon /><div className="ml-4"><p className="text-xs text-gray-500">Access Level</p><p className="text-sm font-medium text-gray-700">Full System Access</p></div></div>
+              </div>
             </div>
-            <div className="flex items-center">
-                <ShieldIcon />
-                <div className="ml-4">
-                    <p className="text-xs text-gray-500">Access Level</p>
-                    <p className="text-sm font-medium text-gray-700">Full System Access</p>
-                </div>
-            </div>
-        </div>
-
-       
-      </div>
-    </div>
+          </div>
         );
-        case 'pending':
-          return(
-            <div className='flex flex-col gap-4'>
-              <div className='flex flex-row justify-between mx-4'>
+      case 'pending':
+        return (
+          <div className='flex flex-col gap-6'>
+            <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'>
               <div className='text-2xl font-extrabold'>Pending Requests</div>
-                <div className=''>
-                  <button onClick={()=>(
-                    setOpenApprovefilter(!openApproveFilter)
-                  )} id="dropdownHoverButton"   data-dropdown-trigger="hover" class=" text-center inline-flex items-center text-xl" type="button">Filter<svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-</svg>
-</button>
-
-{/* <!-- Dropdown menu --> */}
-<div id="dropdownHover" className={ openApproveFilter ?`z-10  bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 absolute  `:'hidden'}>
-    <ul class="py-2 text-sm text-black" aria-labelledby="dropdownHoverButton">
-      {activeroles.map((role) => {
-  const RoleIcon = role.icon;
-  return (
-    <li key={role.id}>
-      <div
-        onClick={() => setActiveApprove(role.id)}
-        className={`${activeApprove === role.id ? 
-          'bg-purple-700 text-white' : ''} 
-          px-4 py-2 flex flex-row gap-4 items-center 
-          hover:bg-purple-400 hover:text-white cursor-pointer`}
-      >
-        <RoleIcon size={20} />
-        <span className="font-bold text-md capitalize">{role.id}</span>
-      </div>
-    </li>
-  );
-})}
-      
-    </ul>
-</div>
+              <div className="relative w-full sm:w-auto">
+                <button onClick={() => setOpenApprovefilter(!openApproveFilter)} className="text-lg inline-flex items-center justify-between w-full sm:w-auto px-4 py-2 border rounded-lg">
+                  Filter <svg className="w-2.5 h-2.5 ms-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4"/></svg>
+                </button>
+                <div className={`${openApproveFilter ? 'z-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 absolute right-0 mt-2' : 'hidden'}`}>
+                  <ul className="py-2 text-sm text-black">
+                    {activeroles.map(role => {
+                      const RoleIcon = role.icon;
+                      return (
+                        <li key={role.id}>
+                          <div onClick={() => { setActiveApprove(role.id); setOpenApprovefilter(false); }} className={`${activeApprove === role.id ? 'bg-purple-700 text-white' : ''} px-4 py-2 flex gap-4 items-center hover:bg-purple-400 hover:text-white cursor-pointer`}>
+                            <RoleIcon size={20} /><span className="font-bold text-md capitalize">{role.id}</span>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
                 </div>
               </div>
-              <div className='flex flex-col gap-2  mb-3 '>{filteredApprovels.map((request)=>(
-                <div className='flex flex-row justify-between  mb-2 py-3 shadow-sm shadow-gray-400 items-center mx-4 px-5 hover:bg-gray-200'>
-                  <div>{request.reg_no}</div>
-                  <div>{request.name}</div>
-                  <div>{request.email}</div>
-                  <div>{request.role}</div>
-
-                  <div className='flex flex-row gap-3 '>
-                  <div><button className='bg-green-100 border-2 border-green-500 rounded-xl px-3 py-2 hover:bg-green-300 hover:text-white transition-colors duration-150' onClick={()=>addApprove(request.reg_no)}>Approve</button></div>
-                  <div><button className='bg-red-100  border-2 border-red-500 rounded-xl px-3 py-2 hover:bg-red-300 hover:text-white transition-colors duration-150' onClick={()=>removeUser(request.reg_no)}>Remove</button></div>
-                  </div>
-
-
-                </div>
-              ))}</div>
-
             </div>
-          )
-
+            <div className='flex flex-col gap-4'>
+              {filteredApprovels.length === 0 && <p className="text-center text-gray-500">No pending approvals.</p>}
+              {filteredApprovels.map(request => (
+                <div key={request.reg_no} className='flex flex-col md:flex-row justify-between gap-4 p-4 shadow-md rounded-lg bg-white hover:bg-gray-50'>
+                  <div className="flex-grow space-y-2">
+                    <div className="text-sm text-gray-500">Reg No: <span className="font-medium text-gray-800">{request.reg_no}</span></div>
+                    <div className="text-sm text-gray-500">Name: <span className="font-medium text-gray-800">{request.name}</span></div>
+                    <div className="text-sm text-gray-500">Email: <span className="font-medium text-gray-800 break-all">{request.email}</span></div>
+                    <div className="text-sm text-gray-500">Role: <span className="font-medium text-purple-700 capitalize bg-purple-100 px-2 py-1 rounded-full">{request.role}</span></div>
+                  </div>
+                  <div className='flex gap-3 self-end md:self-center flex-shrink-0'>
+                    <button className='bg-green-100 border-2 border-green-500 rounded-xl px-3 py-2 text-sm font-semibold text-green-800 hover:bg-green-200' onClick={() => addApprove(request.reg_no)}>Approve</button>
+                    <button className='bg-red-100 border-2 border-red-500 rounded-xl px-3 py-2 text-sm font-semibold text-red-800 hover:bg-red-200' onClick={() => removeUser(request.reg_no)}>Remove</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
       default:
         return null;
     }
   };
 
   const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-    { id: 'teachers', label: 'Teachers', icon: Users },
     { id: 'courses', label: 'Courses', icon: BookOpen },
     { id: 'profile', label: 'Profile', icon: Users },
-    {id:'pending',label:'Pending Approvel',icon:Hourglass}
+    { id: 'pending', label: 'Pending Approval', icon: Hourglass }
   ];
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <h1 className="text-2xl font-bold text-red-600">Admin Dashboard</h1>
-          </div>
-        </div>
-      </div> */}
-    <Header/>
+      <Header />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex space-x-8">
-          <div className="w-64 space-y-2">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
-                    activeTab === tab.id
-                      ? 'bg-purple-700 text-white '
-                      : 'hover:text-[#9810FA] hover:border-l-4 hover:border-[#9810FA] '
-                  }`}
-                >  
-                  <Icon size={20} className="mr-3" />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="flex-1">
-            {renderContent()}
-            {toast.message && (
-  <div
-    className={`fixed top-48  translate-y-14 -translate-x-14 right-0 px-4 py-2 rounded shadow-lg  ${
-      toast.type === true ? "bg-green-200 border-2 border-green-500" : "bg-red-500 border-2 border-red-500"
-    } transition-all duration-300`}
-  >
-    {toast.message}
-  </div>
-)}
-          </div>
+        <div className="flex flex-col lg:flex-row gap-8">
+          <aside className="lg:w-64 w-full flex-shrink-0">
+            <div className="lg:hidden flex justify-between items-center mb-4">
+              <h2 className="font-bold">Admin Menu</h2>
+              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
+            <div className={`${mobileMenuOpen ? 'block' : 'hidden'} lg:block space-y-2`}>
+              {tabs.map(tab => {
+                const Icon = tab.icon;
+                return (
+                  <button key={tab.id} onClick={() => { setActiveTab(tab.id); setMobileMenuOpen(false); }} className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors duration-200 ${activeTab === tab.id ? 'bg-purple-700 text-white shadow-md' : 'text-gray-600 hover:bg-purple-100 hover:text-purple-800'}`}>
+                    <Icon size={20} className="mr-3" /> {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+          </aside>
+          <main className="flex-1">{renderContent()}</main>
         </div>
       </div>
+      {toast.message && (
+        <div className={`fixed top-24 right-4 z-50 px-4 py-2 rounded shadow-lg text-white ${toast.type ? "bg-green-500" : "bg-red-500"} transition-all duration-300`}>
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 };
