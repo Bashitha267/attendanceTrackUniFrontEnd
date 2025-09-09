@@ -28,7 +28,7 @@ const LoginPage = () => {
 
           <div className="flex flex-col gap-4 p-8">
             <div className="flex justify-center flex-row">
-            <img src={logo} className="h-fit w-32 object-cover"></img>
+            <img src={logo} className="h-44 w-32 object-cover"></img>
 
             </div>
             
