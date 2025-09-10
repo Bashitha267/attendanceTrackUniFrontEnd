@@ -241,11 +241,11 @@ const AdminDashboard = () => {
             <div className="relative">
               <div className="h-32 bg-[#9810FA]"></div>
               <div className="absolute left-1/2 -translate-x-1/2 -bottom-16 transform">
-                <img className="w-32 h-32 rounded-full border-4 border-white object-cover shadow-md" src={profileData.img || 'https://via.placeholder.com/150'} alt="Admin" />
+                <img className="w-36 h-36 rounded-full border-4 border-white object-cover shadow-md" src={profileData.img || 'https://res.cloudinary.com/dnfbik3if/image/upload/v1757522500/Gemini_Generated_Image_35u0bk35u0bk35u0_mbqnnr_og0ikh.png'} alt="Admin" />
               </div>
             </div>
             <div className="text-center px-6 pt-20 pb-8">
-              <h2 className="text-2xl font-bold text-gray-800">{profileData.name || "Admin User"}</h2>
+              <h2 className="text-2xl font-bold text-gray-800">{"Admin"}</h2>
               <p className="text-gray-500 mt-1 text-sm">System Administrator</p>
               <div className="mt-8 text-left space-y-5 max-w-sm mx-auto">
                 <div className="flex items-center"><MailIcon /><div className="ml-4"><p className="text-xs text-gray-500">Email</p><a href={`mailto:${profileData.email}`} className="text-sm font-medium text-gray-700 hover:text-purple-600 break-all">{profileData.email}</a></div></div>
@@ -259,9 +259,9 @@ const AdminDashboard = () => {
         return (
           <div className='flex flex-col gap-6'>
             <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'>
-              <div className='text-2xl font-extrabold'>Pending Requests</div>
+              <div className='text-xl font-semibold text-gray-900 '>Pending Requests</div>
               <div className="relative w-full sm:w-auto">
-                <button onClick={() => setOpenApprovefilter(!openApproveFilter)} className="text-lg inline-flex items-center justify-between w-full sm:w-auto px-4 py-2 border rounded-lg">
+                <button onClick={() => setOpenApprovefilter(!openApproveFilter)} className="text-lg inline-flex items-center justify-between w-full sm:w-auto px-4 py-1 border-2 border-purple-600 rounded-lg">
                   Filter <svg className="w-2.5 h-2.5 ms-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4"/></svg>
                 </button>
                 <div className={`${openApproveFilter ? 'z-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 absolute right-0 mt-2' : 'hidden'}`}>
@@ -281,7 +281,7 @@ const AdminDashboard = () => {
               </div>
             </div>
             <div className='flex flex-col gap-4'>
-              {filteredApprovels.length === 0 && <p className="text-center text-gray-500">No pending approvals.</p>}
+              {filteredApprovels.length === 0 && <p className="text-center text-gray-500">No pending Requests to approve.</p>}
               {filteredApprovels.map(request => (
                 <div key={request.reg_no} className='flex flex-col md:flex-row justify-between gap-4 p-4 shadow-md rounded-lg bg-white hover:bg-gray-50'>
                   <div className="flex-grow space-y-2">

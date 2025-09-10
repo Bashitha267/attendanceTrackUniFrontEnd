@@ -126,6 +126,7 @@ const RegisterPage = () => {
             >
               Verify Email
             </button>
+            
             <div className="text-center text-sm text-gray-600">
               Wrong email?{" "}
               <span
