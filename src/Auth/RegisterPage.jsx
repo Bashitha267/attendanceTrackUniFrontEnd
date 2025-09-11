@@ -153,7 +153,7 @@ const RegisterPage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[50vh] overflow-y-auto pr-2 pl-1 pb-1">
               <InputField label="Name" name="name" value={formData.name} onChange={handleInputChange} />
-              <InputField label="Reg No" name="reg_no" value={formData.reg_no} onChange={handleInputChange} />
+              <InputField label="Reg No" name="reg_no" value={formData.reg_no} placeholder="Ex: 2022csc001" onChange={handleInputChange} />
               <InputField label="Email" name="email" type="email" value={formData.email} onChange={handleInputChange} />
               <InputField label="Contact No" name="contact_no" value={formData.contact_no} onChange={handleInputChange} />
               <InputField label="Date Of Birth" name="dob" type="date" value={formData.dob} onChange={handleInputChange} />
