@@ -84,15 +84,15 @@ const RegistrarDashboard = () => {
   const MarkRegister = () => (
     <div className="space-y-6">
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Mark Attendance</h3>
+        <h3 className="text-lg font-semibold text-green-900 mb-4">Mark Attendance</h3>
         
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Select Course</label>
+            <label className="block text-sm font-medium text-purple-800 mb-1">Select Course</label>
             <select 
               value={selectedCourse}
               onChange={(e) => setSelectedCourse(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black"
             >
               <option value="">Choose course</option>
               {courses.map((course) => (
@@ -104,20 +104,20 @@ const RegistrarDashboard = () => {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+            <label className="block text-sm font-medium text-purple-800 mb-1">Date</label>
             <input
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black"
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Time</label>
+            <label className="block text-sm font-medium text-purple-800 mb-1">Time</label>
             <input
               type="time"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black"
             />
           </div>
         </div>
@@ -228,8 +228,8 @@ const RegistrarDashboard = () => {
 
     <div>
       <BarcodeScannerComponent
-        width={500}
-        height={500}
+        width={600}
+        height={600}
         onUpdate={(err, result) => {
           if (result){
             console.log("correct")
@@ -247,19 +247,19 @@ const RegistrarDashboard = () => {
   const AttendanceRecords = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-gray-900">Attendance Records</h2>
+        <h2 className="text-xl font-semibold text-green-900">Attendance Records</h2>
         <div className="flex space-x-3">
           <div className="relative">
-            <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
+            <Search className="absolute left-3 top-2.5 text-gray-500" size={18} />
             <input
               type="text"
               placeholder="Search records..."
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-500"
             />
           </div>
           <input
             type="date"
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-500"
           />
         </div>
       </div>
@@ -269,33 +269,33 @@ const RegistrarDashboard = () => {
           <div key={record.id} className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">{record.course}</h3>
-                <p className="text-gray-600 flex items-center">
+                <h3 className="text-lg font-semibold text-black">{record.course}</h3>
+                <p className="text-gray-600  flex items-center">
                   <Calendar className="mr-1" size={16} />
                   {record.date}
                 </p>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-red-600">{record.percentage}%</div>
-                <div className="text-sm text-gray-500">Attendance</div>
+                <div className="text-2xl font-bold text-pink-800">{record.percentage}%</div>
+                <div className="text-sm text-gray-550">Attendance</div>
               </div>
             </div>
             
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-3">
               <div className="text-center p-3 bg-green-50 rounded-lg">
-                <CheckCircle className="text-green-600 mx-auto mb-1" size={20} />
+                <CheckCircle className="text-green-600 mx-auto mb-1" size={30} />
                 <div className="font-semibold text-green-600">{record.present}</div>
-                <div className="text-xs text-gray-600">Present</div>
+                <div className="text-xs text-gray-800">Present</div>
               </div>
               <div className="text-center p-3 bg-red-50 rounded-lg">
-                <XCircle className="text-red-600 mx-auto mb-1" size={20} />
+                <XCircle className="text-red-600 mx-auto mb-1" size={30} />
                 <div className="font-semibold text-red-600">{record.absent}</div>
-                <div className="text-xs text-gray-600">Absent</div>
+                <div className="text-xs text-gray-800">Absent</div>
               </div>
               <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <Users className="text-blue-600 mx-auto mb-1" size={20} />
+                <Users className="text-blue-600 mx-auto mb-1" size={30} />
                 <div className="font-semibold text-blue-600">{record.total}</div>
-                <div className="text-xs text-gray-600">Total</div>
+                <div className="text-xs text-gray-800">Total</div>
               </div>
             </div>
           </div>
@@ -306,25 +306,25 @@ const RegistrarDashboard = () => {
 
   const Reports = () => (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-gray-900">Attendance Reports</h2>
+      <h2 className="text-xl font-semibold text-green-900">Attendance Reports</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+        <div className="bg-green-50 p-6 rounded-lg shadow-sm">
           <div className="text-center">
             <div className="text-3xl font-bold text-green-600">89%</div>
-            <div className="text-sm text-gray-600">Overall Attendance</div>
+            <div className="text-sm text-gray-800">Overall Attendance</div>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+        <div className="bg-blue-50 p-6 rounded-lg shadow-sm">
           <div className="text-center">
             <div className="text-3xl font-bold text-blue-600">156</div>
-            <div className="text-sm text-gray-600">Classes Held</div>
+            <div className="text-sm text-gray-800">Classes Held</div>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+        <div className="bg-red-50 p-6 rounded-lg shadow-sm">
           <div className="text-center">
             <div className="text-3xl font-bold text-red-600">23</div>
-            <div className="text-sm text-gray-600">Low Attendance Cases</div>
+            <div className="text-sm text-gray-800">Low Attendance Cases</div>
           </div>
         </div>
       </div>
@@ -340,12 +340,12 @@ const RegistrarDashboard = () => {
                   {Math.floor(Math.random() * 20 + 80)}%
                 </span>
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-700">
                 Teacher: {course.teacher} • Code: {course.code}
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
                 <div 
-                  className="bg-green-500 h-2 rounded-full"
+                  className="bg-green-600 h-2 rounded-full"
                   style={{ width: `${Math.floor(Math.random() * 20 + 80)}%` }}
                 ></div>
               </div>
@@ -369,38 +369,38 @@ const RegistrarDashboard = () => {
       case 'profile':
         return (
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Registrar Profile</h3>
-            <div className="flex items-start space-x-6">
+            <h3 className="text-lg font-semibold text-green-900 mb-6">Registrar Profile</h3>
+            <div className="flex items-start space-x-8">
               <img
                 src="https://images.pexels.com/photos/3831849/pexels-photo-3831849.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=face"
                 alt="Profile"
-                className="w-24 h-24 rounded-full object-cover"
+                className="w-35 h-35 rounded-full object-cover"
               />
               <div className="flex-1">
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                    <p className="text-gray-900">Jane Wilson</p>
+                    <label className="block text-sm font-medium text-gray-900 mb-1">Name</label>
+                    <p className="text-gray-700">Jane Wilson</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Employee ID</label>
-                    <p className="text-gray-900">REG001</p>
+                    <label className="block text-sm font-medium text-gray-900 mb-1">Employee ID</label>
+                    <p className="text-gray-700">REG001</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <p className="text-gray-900">jane.wilson@university.edu</p>
+                    <label className="block text-sm font-medium text-gray-900 mb-1">Email</label>
+                    <p className="text-gray-700">jane.wilson@university.edu</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
-                    <p className="text-gray-900">Registry Office</p>
+                    <label className="block text-sm font-medium text-gray-900 mb-1">Department</label>
+                    <p className="text-gray-700">Registry Office</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Access Level</label>
-                    <p className="text-gray-900">Attendance Management</p>
+                    <label className="block text-sm font-medium text-gray-900 mb-1">Access Level</label>
+                    <p className="text-gray-700">Attendance Management</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Joining Date</label>
-                    <p className="text-gray-900">March 15, 2020</p>
+                    <label className="block text-sm font-medium text-gray-900 mb-1">Joining Date</label>
+                    <p className="text-gray-700">March 15, 2020</p>
                   </div>
                 </div>
               </div>
@@ -441,8 +441,8 @@ const RegistrarDashboard = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
                     activeTab === tab.id
-                      ? 'bg-red-50 text-red-600 border-l-4 border-red-600'
-                      : 'text-gray-600 hover:bg-red-50 hover:text-red-600'
+                      ? 'bg-purple-50 text-purple-600 border-l-5 border-purple-600'
+                      : 'text-purple-800 hover:bg-pink-50 hover:text-pink-600'
                   }`}
                 >
                   <Icon size={20} className="mr-3" />

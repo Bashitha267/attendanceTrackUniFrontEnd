@@ -51,7 +51,7 @@ const TeacherDashboard= () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">Course Name</label>
             <input
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black"
               placeholder="Enter course name"
             />
           </div>
@@ -59,7 +59,7 @@ const TeacherDashboard= () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">Course Code</label>
             <input
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black"
               placeholder="Enter course code"
             />
           </div>
@@ -68,7 +68,7 @@ const TeacherDashboard= () => {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
           <textarea
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black"
             rows={3}
             placeholder="Enter course description"
           />
@@ -79,7 +79,7 @@ const TeacherDashboard= () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">Schedule</label>
             <input
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black"
               placeholder="e.g., Mon, Wed, Fri 9:00 AM"
             />
           </div>
@@ -87,7 +87,7 @@ const TeacherDashboard= () => {
             <label className="block text-sm font-medium text-gray-700 mb-1">Room</label>
             <input
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black"
               placeholder="Enter room number"
             />
           </div>
@@ -103,7 +103,7 @@ const TeacherDashboard= () => {
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-800"
           >
             Create Course
           </button>
@@ -122,7 +122,7 @@ const TeacherDashboard= () => {
         <h3 className="text-lg font-semibold text-gray-900">Enroll Student</h3>
         <button
           onClick={() => setShowEnrollStudent(false)}
-          className="text-gray-500 hover:text-gray-700"
+          className="text-gray-500 hover:text-gray-800"
         >
           ×
         </button>
@@ -130,8 +130,8 @@ const TeacherDashboard= () => {
       
       <form className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Course</label>
-          <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+          <label className="block text-sm font-medium text-gray-800 mb-1">Course</label>
+          <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black">
             <option>Select a course</option>
             {courses.map((course) => (
               <option key={course.id} value={course.id}>
@@ -142,10 +142,10 @@ const TeacherDashboard= () => {
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Student ID or Email</label>
+          <label className="block text-sm font-medium text-gray-800 mb-1">Student ID or Email</label>
           <input
             type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black"
             placeholder="Enter student ID or email"
           />
         </div>
@@ -160,7 +160,7 @@ const TeacherDashboard= () => {
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-800"
           >
             Enroll Student
           </button>
@@ -175,12 +175,12 @@ const TeacherDashboard= () => {
         return (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">My Courses</h2>
+              <h2 className="text-xl font-semibold text-green-900">My Courses</h2>
               <button
                 onClick={() => setShowAddCourse(true)}
-                className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-800"
               >
-                <Plus size={18} className="mr-2" />
+                <Plus size={20} className="mr-2" />
                 Add Course
               </button>
             </div>
@@ -197,26 +197,26 @@ const TeacherDashboard= () => {
                       <p className="text-sm text-gray-500">{course.schedule}</p>
                     </div>
                     <div className="text-right space-y-1">
-                      <div className="text-2xl font-bold text-red-600">{course.averageAttendance}%</div>
-                      <div className="text-sm text-gray-500">Avg Attendance</div>
+                      <div className="text-2xl font-bold text-pink-800">{course.averageAttendance}%</div>
+                      <div className="text-sm text-gray-800">Avg Attendance</div>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-3 gap-4 mt-4">
                     <div className="text-center p-3 bg-blue-50 rounded-lg">
-                      <Users className="text-blue-600 mx-auto mb-1" size={20} />
+                      <Users className="text-blue-600 mx-auto mb-1" size={30} />
                       <div className="font-semibold text-blue-600">{course.enrolledStudents}</div>
-                      <div className="text-xs text-gray-600">Students</div>
+                      <div className="text-xs text-gray-800">Students</div>
                     </div>
                     <div className="text-center p-3 bg-green-50 rounded-lg">
-                      <BookOpen className="text-green-600 mx-auto mb-1" size={20} />
+                      <BookOpen className="text-green-600 mx-auto mb-1" size={30} />
                       <div className="font-semibold text-green-600">24</div>
-                      <div className="text-xs text-gray-600">Classes</div>
+                      <div className="text-xs text-gray-800">Classes</div>
                     </div>
                     <div className="text-center p-3 bg-purple-50 rounded-lg">
-                      <Eye className="text-purple-600 mx-auto mb-1" size={20} />
+                      <Eye className="text-purple-600 mx-auto mb-1" size={30} />
                       <div className="font-semibold text-purple-600">Active</div>
-                      <div className="text-xs text-gray-600">Status</div>
+                      <div className="text-xs text-gray-800">Status</div>
                     </div>
                   </div>
                   
@@ -240,10 +240,10 @@ const TeacherDashboard= () => {
         return (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Enrolled Students</h2>
+              <h2 className="text-xl font-semibold text-green-900">Enrolled Students</h2>
               <button
                 onClick={() => setShowEnrollStudent(true)}
-                className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-800"
               >
                 <UserPlus size={18} className="mr-2" />
                 Enroll Student
@@ -256,14 +256,14 @@ const TeacherDashboard= () => {
               <div className="p-6 border-b">
                 <div className="flex items-center space-x-4">
                   <div className="relative flex-1">
-                    <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
+                    <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
                     <input
                       type="text"
                       placeholder="Search students..."
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+                      className="w-full pl-10 pr-4 py-2 border border-gray-400 rounded-lg focus:ring-1 focus:ring-black"
                     />
                   </div>
-                  <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500">
+                  <select className="px-3 py-2 border border-gray-400 rounded-lg focus:ring-1 focus:ring-black">
                     <option>All Courses</option>
                     {courses.map((course) => (
                       <option key={course.id} value={course.id}>
@@ -276,36 +276,36 @@ const TeacherDashboard= () => {
               
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-purple-100">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                         Student
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                         Student ID
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                         Email
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                         Attendance
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {enrolledStudents.map((student) => (
-                      <tr key={student.id} className="hover:bg-gray-50">
+                      <tr key={student.id} className="hover:bg-purple-50">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <img
                               src="https://images.pexels.com/photos/3831849/pexels-photo-3831849.jpeg?auto=compress&cs=tinysrgb&w=40&h=40&fit=crop&crop=face"
                               alt=""
-                              className="w-8 h-8 rounded-full mr-3"
+                              className="w-10 h-10 rounded-full mr-3"
                             />
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium text-gray-600">
                               {student.name}
                             </div>
                           </div>
@@ -313,7 +313,7 @@ const TeacherDashboard= () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {student.studentId}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                           {student.email}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -325,8 +325,8 @@ const TeacherDashboard= () => {
                             {student.attendance}%
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          <button className="text-red-600 hover:text-red-900">View Details</button>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <button className="text-blue-600 hover:text-blue-950">View Details</button>
                         </td>
                       </tr>
                     ))}
@@ -340,31 +340,31 @@ const TeacherDashboard= () => {
       case 'attendance':
         return (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900">Attendance Overview</h2>
+            <h2 className="text-xl font-semibold text-green-900">Attendance Overview</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="bg-white p-6 rounded-lg shadow-sm">
+              <div className="bg-green-50 p-6 rounded-lg shadow-sm">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-600">87%</div>
-                  <div className="text-sm text-gray-600">Overall Attendance</div>
+                  <div className="text-sm text-gray-800">Overall Attendance</div>
                 </div>
               </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm">
+              <div className="bg-blue-50 p-6 rounded-lg shadow-sm">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-600">63</div>
-                  <div className="text-sm text-gray-600">Total Students</div>
+                  <div className="text-sm text-gray-800">Total Students</div>
                 </div>
               </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm">
+              <div className="bg-purple-50 p-6 rounded-lg shadow-sm">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-purple-600">48</div>
-                  <div className="text-sm text-gray-600">Classes Held</div>
+                  <div className="text-sm text-gray-800">Classes Held</div>
                 </div>
               </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm">
+              <div className="bg-red-50 p-6 rounded-lg shadow-sm">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-red-600">8</div>
-                  <div className="text-sm text-gray-600">Low Attendance</div>
+                  <div className="text-sm text-gray-800">Low Attendance</div>
                 </div>
               </div>
             </div>
@@ -393,7 +393,7 @@ const TeacherDashboard= () => {
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div 
                           className={`h-2 rounded-full ${
-                            course.averageAttendance >= 85 ? 'bg-green-500' : 
+                            course.averageAttendance >= 85 ? 'bg-green-600' : 
                             course.averageAttendance >= 75 ? 'bg-yellow-500' : 
                             'bg-red-500'
                           }`}
@@ -411,38 +411,38 @@ const TeacherDashboard= () => {
       case 'profile':
         return (
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Teacher Profile</h3>
+            <h3 className="text-lg font-semibold text-green-900 mb-6">Teacher Profile</h3>
             <div className="flex items-start space-x-6">
               <img
                 src="https://images.pexels.com/photos/3831849/pexels-photo-3831849.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=face"
                 alt="Profile"
-                className="w-24 h-24 rounded-full object-cover"
+                className="w-35 h-35 rounded-full object-cover"
               />
               <div className="flex-1">
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                    <p className="text-gray-900">Dr. Sarah Johnson</p>
+                    <label className="block text-sm font-medium text-gray-900 mb-1">Name</label>
+                    <p className="text-gray-700">Dr. Sarah Johnson</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Teacher Code</label>
-                    <p className="text-gray-900">TCH001</p>
+                    <label className="block text-sm font-medium text-gray-900 mb-1">Teacher Code</label>
+                    <p className="text-gray-700">TCH001</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <p className="text-gray-900">sarah.johnson@university.edu</p>
+                    <label className="block text-sm font-medium text-gray-900 mb-1">Email</label>
+                    <p className="text-gray-700">sarah.johnson@university.edu</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
-                    <p className="text-gray-900">Computer Science</p>
+                    <label className="block text-sm font-medium text-gray-900 mb-1">Department</label>
+                    <p className="text-gray-700">Computer Science</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
-                    <p className="text-gray-900">Database Systems, AI</p>
+                    <label className="block text-sm font-medium text-gray-900 mb-1">Specialization</label>
+                    <p className="text-gray-700">Database Systems, AI</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Experience</label>
-                    <p className="text-gray-900">8 years</p>
+                    <label className="block text-sm font-medium text-gray-900 mb-1">Experience</label>
+                    <p className="text-gray-700">8 years</p>
                   </div>
                 </div>
               </div>
@@ -483,8 +483,8 @@ const TeacherDashboard= () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
                     activeTab === tab.id
-                      ? 'bg-red-50 text-red-600 border-l-4 border-red-600'
-                      : 'text-gray-600 hover:bg-red-50 hover:text-red-600'
+                      ? 'bg-purple-50 text-purple-600 border-l-4 border-purple-600'
+                      : 'text-purple-800 hover:bg-pink-50 hover:text-pink-600'
                   }`}
                 >
                   <Icon size={20} className="mr-3" />
