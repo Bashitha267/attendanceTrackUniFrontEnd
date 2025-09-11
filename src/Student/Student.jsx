@@ -46,30 +46,30 @@ const StudentDashboard = () => {
   const StudentProfile = () => (
     <div className="space-y-6">
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
-        <div className="flex items-start space-x-6">
+        <h3 className="text-lg font-semibold text-green-900 mb-6">Personal Information</h3>
+        <div className="flex items-start space-x-8">
           <img
             src="https://images.pexels.com/photos/3831849/pexels-photo-3831849.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=face"
             alt="Profile"
-            className="w-24 h-24 rounded-full object-cover"
+            className="w-35 h-35 rounded-full object-cover"
           />
           <div className="flex-1">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Name</label>
-                <p className="text-gray-900">John Doe</p>
+                <label className="block text-sm font-medium text-gray-900">Name</label>
+                <p className="text-gray-700">John Doe</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Student ID</label>
-                <p className="text-gray-900">STU001</p>
+                <label className="block text-sm font-medium text-gray-900">Student ID</label>
+                <p className="text-gray-700">STU001</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Email</label>
-                <p className="text-gray-900">john.doe@university.edu</p>
+                <label className="block text-sm font-medium text-gray-900">Email</label>
+                <p className="text-gray-700">john.doe@university.edu</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Department</label>
-                <p className="text-gray-900">Computer Science</p>
+                <label className="block text-sm font-medium text-gray-900">Department</label>
+                <p className="text-gray-700">Computer Science</p>
               </div>
             </div>
           </div>
@@ -83,7 +83,7 @@ const StudentDashboard = () => {
         </h3>
         <div className="text-center">
           <div className="bg-gray-100 p-8 rounded-lg inline-block">
-            <QrCode size={120} className="text-red-600" />
+            <QrCode size={130} className="text-purple-950" />
           </div>
           <p className="text-sm text-gray-600 mt-2">
             Use this QR code for attendance marking
@@ -102,30 +102,30 @@ const StudentDashboard = () => {
               <div key={subject.id} className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{subject.name}</h3>
+                    <h3 className="text-lg font-semibold text-black">{subject.name}</h3>
                     <p className="text-gray-600">{subject.code} • {subject.teacher}</p>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-red-600">{subject.attendance}%</div>
-                    <div className="text-sm text-gray-500">Attendance</div>
+                    <div className="text-2xl font-bold text-pink-800">{subject.attendance}%</div>
+                    <div className="text-sm text-gray-550">Attendance</div>
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-3 gap-4 mt-4">
+                <div className="grid grid-cols-3 gap-3 mt-4">
                   <div className="text-center p-3 bg-green-50 rounded-lg">
-                    <CheckCircle className="text-green-600 mx-auto mb-1" size={20} />
+                    <CheckCircle className="text-green-600 mx-auto mb-1" size={30} />
                     <div className="font-semibold text-green-600">{subject.presentClasses}</div>
-                    <div className="text-xs text-gray-600">Present</div>
+                    <div className="text-xs text-gray-800">Present</div>
                   </div>
                   <div className="text-center p-3 bg-red-50 rounded-lg">
-                    <XCircle className="text-red-600 mx-auto mb-1" size={20} />
+                    <XCircle className="text-red-600 mx-auto mb-1" size={30} />
                     <div className="font-semibold text-red-600">{subject.totalClasses - subject.presentClasses}</div>
-                    <div className="text-xs text-gray-600">Absent</div>
+                    <div className="text-xs text-gray-800">Absent</div>
                   </div>
                   <div className="text-center p-3 bg-blue-50 rounded-lg">
-                    <Clock className="text-blue-600 mx-auto mb-1" size={20} />
+                    <Clock className="text-blue-600 mx-auto mb-1" size={30} />
                     <div className="font-semibold text-blue-600">{subject.totalClasses}</div>
-                    <div className="text-xs text-gray-600">Total</div>
+                    <div className="text-xs text-gray-800">Total</div>
                   </div>
                 </div>
               </div>
@@ -137,21 +137,21 @@ const StudentDashboard = () => {
         return (
           <div className="bg-white rounded-lg shadow-sm">
             <div className="p-6 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">Attendance Overview</h3>
+              <h3 className="text-lg font-semibold text-green-900">Attendance Overview</h3>
             </div>
             <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div className="text-center p-4 bg-green-50 rounded-lg">
                   <div className="text-3xl font-bold text-green-600">87%</div>
-                  <div className="text-sm text-gray-600">Overall Attendance</div>
+                  <div className="text-sm text-gray-800">Overall Attendance</div>
                 </div>
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
                   <div className="text-3xl font-bold text-blue-600">60</div>
-                  <div className="text-sm text-gray-600">Total Classes</div>
+                  <div className="text-sm text-gray-800">Total Classes</div>
                 </div>
                 <div className="text-center p-4 bg-red-50 rounded-lg">
                   <div className="text-3xl font-bold text-red-600">8</div>
-                  <div className="text-sm text-gray-600">Classes Missed</div>
+                  <div className="text-sm text-gray-800">Classes Missed</div>
                 </div>
               </div>
               
@@ -171,7 +171,7 @@ const StudentDashboard = () => {
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div 
                         className={`h-2 rounded-full ${
-                          subject.attendance >= 85 ? 'bg-green-500' : 
+                          subject.attendance >= 85 ? 'bg-green-600' : 
                           subject.attendance >= 75 ? 'bg-yellow-500' : 
                           'bg-red-500'
                         }`}
@@ -189,7 +189,7 @@ const StudentDashboard = () => {
         return (
           <div className="bg-white rounded-lg shadow-sm">
             <div className="p-6 border-b">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+              <h3 className="text-lg font-semibold text-green-900 flex items-center">
                 <Calendar className="mr-2" size={20} />
                 Class Schedule
               </h3>
@@ -197,11 +197,11 @@ const StudentDashboard = () => {
             <div className="p-6">
               <div className="space-y-4">
                 {schedule.map((item, index) => (
-                  <div key={index} className="flex items-center p-4 border rounded-lg hover:bg-gray-50">
-                    <div className="w-20 text-sm font-medium text-gray-600">{item.day}</div>
+                  <div key={index} className="flex items-center p-4 border rounded-lg hover:bg-purple-100">
+                    <div className="w-20 text-sm font-medium text-gray-700">{item.day}</div>
                     <div className="w-24 text-sm text-gray-900">{item.time}</div>
                     <div className="flex-1 text-sm font-medium text-gray-900">{item.subject}</div>
-                    <div className="text-sm text-gray-600">{item.room}</div>
+                    <div className="text-sm text-gray-900">{item.room}</div>
                   </div>
                 ))}
               </div>
@@ -240,8 +240,8 @@ const StudentDashboard = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
                     activeTab === tab.id
-                      ? 'bg-red-50 text-red-600 border-l-4 border-red-600'
-                      : 'text-gray-600 hover:bg-red-50 hover:text-red-600'
+                      ? 'bg-purple-50 text-purple-600 border-l-4 border-purple-600'
+                      : 'text-purple-800 hover:bg-pink-50 hover:text-pink-600'
                   }`}
                 >
                   <Icon size={20} className="mr-3" />
