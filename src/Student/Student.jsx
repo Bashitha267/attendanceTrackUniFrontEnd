@@ -1,5 +1,7 @@
 import axios from 'axios';
-import { BookOpen, Calendar, CheckCircle, Clock, Loader2, QrCode, XCircle } from 'lucide-react';
+// --- MODIFIED: Added Menu icon ---
+import { BookOpen, CheckCircle, Clock, Loader2, Menu, QrCode, XCircle } from 'lucide-react';
+// --- MODIFIED: Added useState to the import ---
 import { useEffect, useState } from 'react';
 import Header from "../Layout/Header";
 import student from "../assets/graduated.png";
@@ -11,11 +13,14 @@ const StudentDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // --- NEW: State variables for filters ---
+    // State variables for filters
     const [filterBatchYear, setFilterBatchYear] = useState('');
     const [filterYear, setFilterYear] = useState('');
     const [filterSemester, setFilterSemester] = useState('');
     const [filteredSubjects, setFilteredSubjects] = useState([]);
+
+    // --- NEW: State for mobile menu visibility ---
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -46,7 +51,7 @@ const StudentDashboard = () => {
         fetchData();
     }, []);
 
-    
+
     useEffect(() => {
         const filtered = subjects.filter(subject => {
             const matchBatchYear = filterBatchYear ? subject.batchYear === Number(filterBatchYear) : true;
@@ -57,25 +62,25 @@ const StudentDashboard = () => {
         setFilteredSubjects(filtered);
     }, [subjects, filterBatchYear, filterYear, filterSemester]);
 
-    const schedule = [
-        { day: 'Monday', time: '9:00 AM', subject: 'Computer Science 101', room: 'A-101' },
-        { day: 'Tuesday', time: '11:00 AM', subject: 'Mathematics', room: 'B-205' },
-        { day: 'Wednesday', time: '2:00 PM', subject: 'Database Systems', room: 'C-301' },
-    ];
+    // --- NEW: Handler to change tab and close menu on mobile ---
+    const handleTabClick = (tabId) => {
+        setActiveTab(tabId);
+        setIsMenuOpen(false); // Close menu after selection
+    };
 
     const StudentProfile = () => (
         profileData && (
             <div className="space-y-6">
                 <div className="bg-white rounded-lg shadow-sm p-6">
                     <h3 className="text-lg font-semibold text-green-900 mb-6">Student Information</h3>
-                    <div className="flex items-start space-x-8">
+                    <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-8">
                         <img
                             src={profileData.img || student}
                             alt="Profile"
                             className="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
                         />
                         <div className="flex-1">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-900">Name</label>
                                     <p className="text-gray-700">{profileData.name}</p>
@@ -117,16 +122,16 @@ const StudentDashboard = () => {
     const renderContent = () => {
         switch (activeTab) {
             case 'subjects':
-               if (loading) return (
-  <div className="flex justify-center items-center h-64">
-    <Loader2 className="h-12 w-12 animate-spin text-pink-600" />
-  </div>
-);
+                if (loading) return (
+                    <div className="flex justify-center items-center h-64">
+                        <Loader2 className="h-12 w-12 animate-spin text-pink-600" />
+                    </div>
+                );
                 if (error) return <div className="text-red-500">Error: {error}</div>;
-                
+
                 return (
                     <div className="space-y-6">
-                        
+
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-4 bg-white rounded-lg shadow-sm">
                             <h2 className="text-xl font-semibold text-gray-900">My Enrolled Subjects</h2>
                             <div className="flex flex-wrap gap-3 w-full md:w-auto">
@@ -153,7 +158,7 @@ const StudentDashboard = () => {
                             </div>
                         </div>
 
-                       
+
                         {filteredSubjects.length === 0 && !loading && (
                             <div className="text-center text-gray-500 py-10">No subjects match the current filters.</div>
                         )}
@@ -201,29 +206,6 @@ const StudentDashboard = () => {
                     </div>
                 );
 
-            case 'schedule':
-                return (
-                    <div className="bg-white rounded-lg shadow-sm">
-                        <div className="p-6 border-b">
-                            <h3 className="text-lg font-semibold text-green-900 flex items-center">
-                                <Calendar className="mr-2" size={20} /> Class Schedule
-                            </h3>
-                        </div>
-                        <div className="p-6">
-                            <div className="space-y-4">
-                                {schedule.map((item, index) => (
-                                    <div key={index} className="flex items-center p-4 border rounded-lg hover:bg-purple-100">
-                                        <div className="w-20 text-sm font-medium text-gray-700">{item.day}</div>
-                                        <div className="w-24 text-sm text-gray-900">{item.time}</div>
-                                        <div className="flex-1 text-sm font-medium text-gray-900">{item.subject}</div>
-                                        <div className="text-sm text-gray-900">{item.room}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                );
-
             case 'profile':
                 return <StudentProfile />;
 
@@ -235,7 +217,6 @@ const StudentDashboard = () => {
     const tabs = [
         { id: 'subjects', label: 'My Subjects', icon: BookOpen },
         { id: 'attendance', label: 'Attendance', icon: CheckCircle },
-        { id: 'schedule', label: 'Schedule', icon: Calendar },
         { id: 'profile', label: 'Profile', icon: QrCode },
     ];
 
@@ -243,18 +224,37 @@ const StudentDashboard = () => {
         <div className="min-h-screen bg-gray-50">
             <Header />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <div className="flex flex-col md:flex-row md:space-x-8">
-                    <div className="w-full md:w-64 mb-6 md:mb-0">
-                        <div className="flex md:flex-col space-x-2 md:space-x-0 md:space-y-2 overflow-x-auto">
+                {/* --- NEW: Mobile Menu Button --- */}
+                <div className="md:hidden mb-4">
+                    <button
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        className="flex items-center w-full px-4 py-3 text-left rounded-lg bg-white shadow-sm text-purple-800"
+                    >
+                        <Menu size={20} className="mr-3" />
+                        {tabs.find(tab => tab.id === activeTab)?.label || 'Menu'}
+                    </button>
+                </div>
+
+              
+                <div className="relative flex flex-col md:flex-row md:space-x-8">
+
+                    
+                    <div className={`
+                        md:w-64 mb-6 md:mb-0
+                        ${isMenuOpen ? 'block' : 'hidden'} 
+                        md:block 
+                        absolute md:relative w-full md:w-64 bg-gray-50 z-10 md:z-auto
+                    `}>
+                        <div className="flex flex-col space-y-2 bg-white p-2 rounded-lg shadow-sm md:shadow-none md:bg-transparent md:p-0">
                             {tabs.map((tab) => {
                                 const Icon = tab.icon;
                                 return (
                                     <button
                                         key={tab.id}
-                                        onClick={() => setActiveTab(tab.id)}
-                                        className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors flex-shrink-0 ${activeTab === tab.id
-                                            ? 'bg-pink-100 text-pink-600 border-b-4 md:border-b-0 md:border-l-4 border-pink-600'
-                                            : 'text-purple-800 hover:bg-pink-100 hover:text-pink-600'
+                                        onClick={() => handleTabClick(tab.id)} 
+                                        className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${activeTab === tab.id
+                                                ? 'bg-pink-100 text-pink-600 font-semibold border-l-4 border-pink-600'
+                                                : 'text-purple-800 hover:bg-pink-50 hover:text-pink-600'
                                             }`}
                                     >
                                         <Icon size={20} className="mr-3" />
@@ -264,6 +264,7 @@ const StudentDashboard = () => {
                             })}
                         </div>
                     </div>
+
                     <div className="flex-1">
                         {renderContent()}
                     </div>
