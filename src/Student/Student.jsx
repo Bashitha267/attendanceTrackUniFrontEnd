@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { BookOpen, Calendar, CheckCircle, Clock, QrCode, XCircle } from 'lucide-react';
+import { BookOpen, Calendar, CheckCircle, Clock, Loader2, QrCode, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import Header from "../Layout/Header";
 import student from "../assets/graduated.png";
