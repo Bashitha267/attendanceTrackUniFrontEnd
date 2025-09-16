@@ -320,37 +320,67 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex flex-col lg:flex-row gap-8">
-          <aside className="lg:w-64 w-full flex-shrink-0">
-            <div className="lg:hidden flex justify-between items-center mb-4">
-              <h2 className="font-bold">Admin Menu</h2>
-              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-                {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
-            </div>
-            <div className={`${mobileMenuOpen ? 'block' : 'hidden'} lg:block space-y-2`}>
-              {tabs.map(tab => {
-                const Icon = tab.icon;
-                return (
-                  <button key={tab.id} onClick={() => { setActiveTab(tab.id); setMobileMenuOpen(false); }} className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors duration-200 ${activeTab === tab.id ? 'bg-purple-700 text-white shadow-md' : 'text-gray-600 hover:bg-purple-100 hover:text-purple-800'}`}>
-                    <Icon size={20} className="mr-3" /> {tab.label}
-                  </button>
-                );
-              })}
-            </div>
-          </aside>
-          <main className="flex-1">{renderContent()}</main>
+   <div className="min-h-screen bg-gray-50">
+  <Header />
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    {/* Mobile Menu Button */}
+    <div className="lg:hidden mb-4">
+      <button
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        className="flex items-center w-full px-4 py-3 text-left rounded-lg bg-white shadow-sm text-purple-800"
+      >
+        <Menu size={20} className="mr-3" />
+        {tabs.find(tab => tab.id === activeTab)?.label || "Menu"}
+      </button>
+    </div>
+
+    <div className="relative flex flex-col lg:flex-row lg:space-x-8">
+      {/* Sidebar */}
+      <div
+        className={`fixed inset-y-0 left-0 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:shadow-none lg:bg-transparent ${
+          mobileMenuOpen ? "translate-x-0 z-20" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex flex-col space-y-2 p-4 lg:p-0 lg:bg-transparent rounded-lg">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => {
+                setActiveTab(tab.id);
+                setMobileMenuOpen(false); // close on mobile
+              }}
+              className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
+                activeTab === tab.id
+                  ? "bg-purple-700 text-white font-semibold shadow"
+                  : "text-purple-800 hover:bg-purple-100 hover:text-purple-600"
+              }`}
+            >
+              <tab.icon size={20} className="mr-3" />
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
-      {toast.message && (
-        <div className={`fixed top-24 right-4 z-50 px-4 py-2 rounded shadow-lg text-white ${toast.type ? "bg-green-500" : "bg-red-500"} transition-all duration-300`}>
-          {toast.message}
-        </div>
-      )}
+
+      {/* Main Content */}
+      <div className="flex-1 mt-4 lg:mt-0">
+        {renderContent()}
+      </div>
     </div>
+  </div>
+
+  {/* Toast */}
+  {toast.message && (
+    <div
+      className={`fixed top-24 right-4 z-50 px-4 py-2 rounded shadow-lg max-w-xs text-white ${
+        toast.type ? "bg-green-500" : "bg-red-500"
+      } transition-all duration-300`}
+    >
+      {toast.message}
+    </div>
+  )}
+</div>
+
   );
 };
 

@@ -309,36 +309,59 @@ const StudentDashboard = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <Header />
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <div className="md:hidden mb-4">
-                    <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="flex items-center w-full px-4 py-3 text-left rounded-lg bg-white shadow-sm text-purple-800">
-                        <Menu size={20} className="mr-3" />
-                        {tabs.find(tab => tab.id === activeTab)?.label || 'Menu'}
-                    </button>
-                </div>
-                <div className="relative flex flex-col md:flex-row md:space-x-8">
-                    <div className={`md:w-64 mb-6 md:mb-0 ${isMenuOpen ? 'block' : 'hidden'} md:block absolute md:relative w-full md:w-64 bg-gray-50 z-10 md:z-auto`}>
-                        <div className="flex flex-col space-y-2 bg-white p-2 rounded-lg shadow-sm md:shadow-none md:bg-transparent md:p-0">
-                            {tabs.map((tab) => (
-                                <button key={tab.id} onClick={() => handleTabClick(tab.id)} className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${activeTab === tab.id ? 'bg-pink-100 text-pink-600 font-semibold border-l-4 border-pink-600' : 'text-purple-800 hover:bg-pink-50 hover:text-pink-600'}`}>
-                                    <tab.icon size={20} className="mr-3" />{tab.label}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                    <div className="flex-1">{renderContent()}</div>
-                </div>
-            </div>
-            <EnrollmentModal 
-                isOpen={isModalOpen} 
-                onClose={() => setIsModalOpen(false)} 
-                onSubmit={handleEnroll} 
-                subject={subjectToEnroll}
-                enrollmentStatus={enrollmentStatus}
-                setEnrollmentStatus={setEnrollmentStatus}
-            />
+  <Header />
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    {/* Mobile Menu Button */}
+    <div className="md:hidden mb-4">
+      <button
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        className="flex items-center w-full px-4 py-3 text-left rounded-lg bg-white shadow-sm text-purple-800"
+      >
+        <Menu size={20} className="mr-3" />
+        {tabs.find(tab => tab.id === activeTab)?.label || 'Menu'}
+      </button>
+    </div>
+
+    <div className="relative flex flex-col md:flex-row md:space-x-8">
+      {/* Sidebar */}
+      <div
+        className={`fixed inset-y-0 left-0 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:shadow-none md:bg-transparent ${
+          isMenuOpen ? "translate-x-0 z-20" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex flex-col space-y-2 p-4 md:p-0 md:bg-transparent rounded-lg">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => handleTabClick(tab.id)}
+              className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
+                activeTab === tab.id
+                  ? "bg-pink-100 text-pink-600 font-semibold border-l-4 border-pink-600"
+                  : "text-purple-800 hover:bg-pink-50 hover:text-pink-600"
+              }`}
+            >
+              <tab.icon size={20} className="mr-3" />
+              {tab.label}
+            </button>
+          ))}
         </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 mt-4 md:mt-0">{renderContent()}</div>
+    </div>
+  </div>
+
+  {/* Modal Responsiveness */}
+  <EnrollmentModal
+    isOpen={isModalOpen}
+    onClose={() => setIsModalOpen(false)}
+    onSubmit={handleEnroll}
+    subject={subjectToEnroll}
+    enrollmentStatus={enrollmentStatus}
+    setEnrollmentStatus={setEnrollmentStatus}
+  />
+</div>
     );
 };
 
