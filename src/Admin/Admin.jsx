@@ -34,7 +34,8 @@ const AdminDashboard = () => {
     year: "",
     semester: "",
     lecturerId: "",
-    batchYear: ""
+    batchYear: "",
+    subpinCode:"",
   });
 
   useEffect(() => {
@@ -182,12 +183,18 @@ const AdminDashboard = () => {
                     </select>
                     <input type="text" name='lecturerId' placeholder="Lecture ID" value={formDataCourse.lecturerId} onChange={handleInputChangeCourse} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:outline-0" />
                   </div>
+                  <div className='grid grid-cols-2'>
+                    <input type="text" name='subpinCode' placeholder="Subject Pin Code" value={formDataCourse.subpinCode} onChange={handleInputChangeCourse} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:outline-0" />
+
+                  </div>
+
                   <div className="flex justify-end space-x-3">
                     <button type="button" onClick={() => setShowAddCourse(false)} className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">Cancel</button>
                     <button type="submit" className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-900 min-w-[110px]">
                       {courseLoading ? <Loader2Icon size={24} className='animate-spin mx-auto' /> : "Add Course"}
                     </button>
                   </div>
+
                 </form>
               </div>
             )}
@@ -222,6 +229,8 @@ const AdminDashboard = () => {
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900">{course.name}</h3>
                       <p className="text-gray-800">Lecture ID: {course.lecturerId}</p>
+                      <p className="text-gray-800">Subject Pin Code: {course.subpinCode}</p>
+
                       <p className="text-gray-800">{course.subjectCode}</p>
                       <p className="text-sm text-gray-700">Year: {course.year}, Semester: {course.semester}, Batch: {course.batchYear}</p>
                     </div>
