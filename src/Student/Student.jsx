@@ -14,7 +14,7 @@ const EnrollmentFeedback = ({ status, onClose }) => {
     const errorClasses = "bg-red-100 text-red-800";
 
     return (
-        <div className={`${baseClasses} ${isSuccess ? successClasses : errorClasses}`}>
+        <div className={`${baseClasses} ${isSuccess ? successClasses : errorClasses} mt-4`}>
             <div className="flex items-center">
                 {isSuccess ? <CheckCircle className="mr-2" size={20} /> : <XCircle className="mr-2" size={20} />}
                 <span>{status.message}</span>
