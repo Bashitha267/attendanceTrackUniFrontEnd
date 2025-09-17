@@ -263,7 +263,7 @@ const StudentDashboard = () => {
                     <div key={subject._id} className="bg-white rounded-lg shadow-sm p-6">
                         <div className="flex items-center justify-between mb-4">
                             <div>
-                                <h3 className="text-lg font-semibold text-black">{subject.name}</h3>
+                                <h3 className="text-lg font-semibold text-green-900">{subject.name}</h3>
                                 <p className="text-sm text-gray-600">{`Batch: ${subject.batchYear} | Year: ${subject.year} | Semester: ${subject.semester}`}</p>
                                 <p className="text-gray-600 mt-1">Subject Code: {subject.subjectCode}</p>
                                 <p className="text-gray-600">Lecturer ID: {subject.lecturerId}</p>
@@ -271,7 +271,7 @@ const StudentDashboard = () => {
                             {isEnrollMode ? (
                                 <button onClick={() => onEnrollClick(subject)} className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">Enroll</button>
                             ) : (
-                                <div className="text-right"><div className="text-sm text-gray-550">Attendance</div></div>
+                                <div className="text-right"></div>
                             )}
                         </div>
                         {!isEnrollMode && (
