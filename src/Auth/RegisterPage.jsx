@@ -74,27 +74,28 @@ const RegisterPage = () => {
       return;
     }
 
-    try {
-      setLoading(true)
-      const res = await axios.post("https://attendance-uni-backend.vercel.app/users/signup", formData);
+    // signup
+try {
+  setLoading(true)
+  const res = await axios.post("https://attendance-uni-backend.vercel.app/users/signup", formData);
       
-      if (res.data.success) {
-        setLoading(false)
-        setView("confirmEmail");
-        setSuccessMessage("An OTP has been sent to your email.");
-      } else {
-      setLoading(false)
+ if (res.data.success) {
+if (res.data.success === true) {
+    setLoading(false)
+    setView("confirmEmail");
+    setSuccessMessage("An OTP has been sent to your email.");
+  } else {
+    setLoading(false)
+-   setErrMessage(res.data.message);
++   setErrMessage(typeof res.data.message === "string" ? res.data.message : "Signup failed");
+  }
+}} catch (err) {
+  console.error("Signup error:", err);
+  setLoading(false)
+- setErrMessage("An unexpected server error occurred.");
++ setErrMessage(err.response?.data?.message || "An unexpected server error occurred.");
+}
 
-        setErrMessage(res.data.message);
-      }
-    } catch (err) {
-      console.error("Signup error:", err);
-      setLoading(false)
-
-      setErrMessage(
-       "An unexpected server error occurred."
-      );
-    }
   };
 
   if (view === "confirmEmail") {

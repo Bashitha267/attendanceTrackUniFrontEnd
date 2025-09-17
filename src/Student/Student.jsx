@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Header from "../Layout/Header";
 import student from "../assets/graduated.png";
 
-// New Component for displaying styled success/error messages
+
 const EnrollmentFeedback = ({ status, onClose }) => {
     if (!status || !status.message) return null;
 
@@ -31,7 +31,7 @@ const EnrollmentModal = ({ isOpen, onClose, onSubmit, subject, enrollmentStatus,
     const [inputCode, setInputCode] = useState('');
 
     useEffect(() => {
-        // Clear input when the modal opens for a new subject
+      
         if (isOpen) {
             setInputCode('');
         }
@@ -45,11 +45,11 @@ const EnrollmentModal = ({ isOpen, onClose, onSubmit, subject, enrollmentStatus,
             return;
         }
         onSubmit(inputCode);
-        // Don't clear the input code here, so user can see it if there's an error
+       
     };
 
     const handleClose = () => {
-        setEnrollmentStatus({ message: null, type: null }); // Clear status on close
+        setEnrollmentStatus({ message: null, type: null });
         setInputCode('');
         onClose();
     };
@@ -89,7 +89,7 @@ const EnrollmentModal = ({ isOpen, onClose, onSubmit, subject, enrollmentStatus,
 
 
 const StudentDashboard = () => {
-    // ... (keep all your existing states)
+  
     const [activeTab, setActiveTab] = useState('subjects');
     const [profileData, setProfileData] = useState(null);
     const [enrolledSubjects, setEnrolledSubjects] = useState([]);
@@ -149,10 +149,11 @@ const StudentDashboard = () => {
     }, [enrolledSubjects, filterBatchYear, filterYear, filterSemester]);
 
     useEffect(() => {
+        // Hide subjects the student is already in
         const enrolledSubjectCodes = new Set(enrolledSubjects.map(sub => sub.subjectCode));
         const filtered = allAvailableSubjects.filter(subject => {
              if (enrolledSubjectCodes.has(subject.subjectCode)) {
-                 return false; // Hide subjects the student is already in
+                 return false; 
              }
             const matchBatchYear = filterBatchYear ? subject.batchYear === Number(filterBatchYear) : true;
             const matchYear = filterYear ? subject.year === Number(filterYear) : true;
@@ -163,10 +164,10 @@ const StudentDashboard = () => {
     }, [allAvailableSubjects, enrolledSubjects, filterBatchYear, filterYear, filterSemester]);
 
 
-    // --- CORE ENROLLMENT LOGIC (UPDATED) ---
+//   ENROLLMENT 
     const handleOpenEnrollModal = (subject) => {
         setSubjectToEnroll(subject);
-        setEnrollmentStatus({ message: null, type: null }); // Reset status when opening modal
+        setEnrollmentStatus({ message: null, type: null }); // Reset status 
         setIsModalOpen(true);
     };
 
@@ -352,7 +353,7 @@ const StudentDashboard = () => {
     </div>
   </div>
 
-  {/* Modal Responsiveness */}
+ 
   <EnrollmentModal
     isOpen={isModalOpen}
     onClose={() => setIsModalOpen(false)}

@@ -20,7 +20,7 @@ const AdminDashboard = () => {
   const [pendingApprovels, setPendingApprovels] = useState([]);
   const [filteredApprovels, setFilterdApprovels] = useState([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+const [requestsSize, setRequestsSize] = useState(0);
   const activeroles = [
     { id: 'all', icon: Grid2X2 },
     { id: 'student', icon: GraduationCapIcon },
@@ -56,6 +56,7 @@ const AdminDashboard = () => {
         const res = await fetch("https://attendance-uni-backend.vercel.app/users/getnotapproved");
         const data = await res.json();
         if (Array.isArray(data.users)) {
+          setRequestsSize(data.users.length)
           setPendingApprovels(data.users);
           setFilterdApprovels(data.users);
         }
@@ -124,7 +125,7 @@ const AdminDashboard = () => {
         setToast({ message: "Approving success", type: true });
         setPendingApprovels(prev => prev.filter(u => u.reg_no !== reg_no));
         setFilterdApprovels(prev => prev.filter(u => u.reg_no !== reg_no));
-      } else setToast({ message: "Error Cannot perform Approvel", type: false });
+      } else setToast({ message: response.data.message, type: false });
     } catch (error) {
       setToast({ message: "Error approving user", type: false });
     }
@@ -137,7 +138,7 @@ const AdminDashboard = () => {
         setToast({ message: "User removed successfully", type: true });
         setPendingApprovels(prev => prev.filter(u => u.reg_no !== reg_no));
         setFilterdApprovels(prev => prev.filter(u => u.reg_no !== reg_no));
-      } else setToast({ message: "Error removing user", type: false });
+      } else setToast({ message: response.data.message, type: false });
     } catch (error) {
       setToast({ message: "Error removing user", type: false });
     }
@@ -321,7 +322,7 @@ const AdminDashboard = () => {
 
   return (
    <div className="min-h-screen bg-gray-50">
-  <Header />
+  <Header requests={requestsSize} />
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     {/* Mobile Menu Button */}
     <div className="lg:hidden mb-4">

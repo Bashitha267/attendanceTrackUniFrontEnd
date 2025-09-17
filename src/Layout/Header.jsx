@@ -5,9 +5,9 @@ import { useAuth } from '../Context/AuthContext';
 //   title: string;
 // }
 
-const Header = ({ title }) => {
+const Header = ({ title,requests }) => {
   const { user, logout } = useAuth();
-
+  console.log(requests)
   return (
     <header className="bg-white shadow-lg ">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -18,13 +18,14 @@ const Header = ({ title }) => {
           </div>
           
           <div className="flex items-center space-x-4">
-            <button className="text-gray-500 hover:text-red-600 transition-colors">
-              <Bell size={24}  color='#9810FA'/>
+            <button className="text-gray-500 hover:text-red-600 transition-colors ">
+              <Bell size={24}  color='#9810FA' className='transition-transform duration-100'/>
+              <span className={`absolute top-0 w-3 h-3 translate-y-4  -translate-x-0  rounded-full ${requests>0 ? 'bg-purple-600':'hidden'}`}></span>
             </button>
             
             <div className="flex items-center space-x-2">
               <img
-                src={user?.img || 'https://images.pexels.com/photos/3831849/pexels-photo-3831849.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop&crop=face'}
+                src={user?.img || ''}
                 alt="Profile"
                 className="w-8 h-8 rounded-full object-cover "
               />

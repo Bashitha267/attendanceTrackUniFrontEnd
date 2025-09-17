@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
         name: decodedToken.name,
         role: decodedToken.role,
         avatar: decodedToken.image,
-        reg_no:decodedToken.reg_no
+        reg_no:decodedToken.reg_nogi
       };
 
       setAuthState({
