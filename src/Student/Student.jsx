@@ -261,7 +261,7 @@ const StudentDashboard = () => {
             {subjectsToRender.length === 0 && !loading && (<div className="text-center text-gray-500 py-10">No subjects match the current filters.</div>)}
             <div className="grid gap-6">
                 {subjectsToRender.map((subject) => (
-                    <div key={subject._id} className="bg-white rounded-lg shadow-sm p-6">
+                    <div key={subject._id} className="bg-white rounded-lg shadow-lg p-6 hover:bg-[#E8E8E8]">
                         <div className="flex items-center justify-between mb-4">
                             <div>
                                 <h3 className="text-lg font-semibold text-green-900">{subject.name}</h3>
