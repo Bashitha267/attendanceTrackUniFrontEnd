@@ -4,12 +4,12 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
-  const [view, setView] = useState("signup"); // 'signup' or 'confirmEmail'
+  const [view, setView] = useState("signup"); 
   const [showPassword, setShowPassword] = useState(false);
   const [errMessage, setErrMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const[loading,setLoading]=useState(false)
-  const [otp, setOtp] = useState(""); // User's OTP input
+  const [otp, setOtp] = useState(""); 
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -24,7 +24,7 @@ const RegisterPage = () => {
     contact_no: "",
   });
 
-  // const { register, loading } = useAuth(); // From your context
+ 
 
   const roles = [
     { role: "student", icon: GraduationCap },
