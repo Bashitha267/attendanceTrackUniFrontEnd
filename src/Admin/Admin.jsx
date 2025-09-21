@@ -658,14 +658,19 @@ const handleDelete = (studentId) => {
     <div className="min-h-screen bg-purple-50">
       <Header requests={requestsSize} />
       {/* <ChartPieIcon size={15}></ChartPieIcon> */}
-      <div className="bg-purple-700 fixed  bottom-28 right-24 lg:bottom-0 lg:right-24 z-50 mb-16 px-3 py-2 rounded-lg" onClick={()=>setisChatOpen(!isChatopen)}>
-      <MessageCircle size={25} className="   text-white w-10 h-10 "></MessageCircle>
-
-      </div>
+    <div
+  className="bg-purple-600 fixed bottom-8 right-8 lg:bottom-6 lg:right-24 z-50 px-4 py-3 rounded-full shadow-lg hover:bg-purple-800"
+  onClick={() => setisChatOpen(!isChatopen)}
+>
+  <MessageCircle
+    size={25}
+    className="text-white w-8 h-8 lg:w-10 lg:h-10"
+  />
+</div>
       <div><ChatBox isOpen={isChatopen} isClose={setisChatOpen}></ChatBox></div>
-      {/* <ChatBox isOpen={} isClose={}/> */}
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 ">
-        {/* Mobile Menu Button */}
+       
         <div className="lg:hidden mb-4">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

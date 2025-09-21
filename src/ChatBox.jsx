@@ -103,21 +103,26 @@ Bot:
     <div className={`z-50 fixed bottom-5 right-5 w-[90vw] max-w-md h-[70vh] max-h-[600px] bg-white rounded-xl shadow-2xl flex flex-col transition-all duration-300 ease-in-out
       ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
       
-      {/* Header */}
       <div className="bg-purple-600 text-white p-4 flex justify-between items-center rounded-t-xl">
-        <h3 className="text-lg font-semibold">AttendBot</h3>
+        <h3 className="text-lg font-semibold">Attendo AI</h3>
         <button onClick={() => isClose(!isOpen)} className="hover:bg-purple-900 p-1 rounded-full" aria-label="Close Chat">
           <CloseIcon />
         </button>
       </div>
 
-      {/* Chat History */}
+     
       <div className="flex-1 p-4 overflow-y-auto space-y-4">
         {chatHistory.map((msg, index) => (
           <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`p-3 rounded-lg max-w-xs ${msg.sender === 'user' ? 'bg-purple-600 text-white' : 'bg-gray-300 text-gray-800'}`}>
-              {msg.text}
-            </div>
+         <div
+  className={`p-3 max-w-xs text-sm 
+    ${msg.sender === "user" 
+      ? "bg-purple-600 text-white rounded-t-2xl rounded-l-2xl rounded-br-none ml-auto" 
+      : "bg-gray-300 text-gray-800 rounded-t-2xl rounded-r-2xl rounded-bl-none mr-auto"
+    }`}
+>
+  {msg.text}
+</div>
           </div>
         ))}
         {isLoading && (
