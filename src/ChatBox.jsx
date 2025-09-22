@@ -14,14 +14,12 @@ const SendIcon = () => (
   </svg>
 );
 
-// It's better to initialize these outside the component
-// to prevent re-initialization on every render.
-// NOTE: It is strongly recommended to use environment variables for API keys.
-const API_KEY = "AIzaSyAG2dC2-OVTNecpplh4lRJevU2_xdrTHEE"; // Replace with your actual API key
+
+const API_KEY = "AIzaSyAG2dC2-OVTNecpplh4lRJevU2_xdrTHEE"; 
 const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-// This function now takes the full chat history to build a conversational prompt.
+
 const createChatbotPrompt = (history, users, subjects, developers) => {
     const formattedHistory = history.map(msg => `${msg.sender === 'user' ? 'User' : 'Bot'}: ${msg.text}`).join('\n');
 
@@ -43,7 +41,7 @@ Bot:
 
 const ChatBox = ({ isOpen, isClose }) => {
   const [message, setMessage] = useState('');
-  const [chatHistory, setChatHistory] = useState([]);
+  const [chatHistory, setChatHistory] = useState([{sender:"bot",text:"Welcome to Attendo,How Can I help You Today."}]);
   const [isLoading, setIsLoading] = useState(false);
   const [users, setUsers] = useState([]);
   const [subjects, setSubjects] = useState([]);
