@@ -64,7 +64,7 @@ const AdminDashboard = () => {
         useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/subjects/getsubjects/${courseID}`);
+        const response = await fetch(`https://attendance-uni-backend.vercel.app/subjects/getsubjects/${courseID}`);
         const data = await response.json();
         if (data && data.success) {
           setSubject(data.subject);
