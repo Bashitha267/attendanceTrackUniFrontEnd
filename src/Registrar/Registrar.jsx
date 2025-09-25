@@ -441,8 +441,8 @@ const RegistrarDashboard = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
                     activeTab === tab.id
-                      ? 'bg-purple-50 text-purple-600 border-l-5 border-purple-600'
-                      : 'text-purple-800 hover:bg-pink-50 hover:text-pink-600'
+                      ? 'bg-pink-100 text-pink-600 font-semibold border-l-4 border-pink-600'
+                      : 'text-purple-800 hover:bg-pink-100 hover:text-pink-600'
                   }`}
                 >
                   <Icon size={20} className="mr-3" />
