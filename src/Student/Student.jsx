@@ -19,7 +19,7 @@ const EnrollmentFeedback = ({ status, onClose }) => {
                 {isSuccess ? <CheckCircle className="mr-2" size={20} /> : <XCircle className="mr-2" size={20} />}
                 <span>{status.message}</span>
             </div>
-            <button onClick={onClose} className="p-1 rounded-full hover:bg-black/10">
+            <button onClick={onClose} className="p-1 rounded-full hover:bg-purple/10">
                 <X size={18} />
             </button>
         </div>
@@ -69,7 +69,7 @@ const EnrollmentModal = ({ isOpen, onClose, onSubmit, subject, enrollmentStatus,
                     value={inputCode}
                     onChange={(e) => setInputCode(e.target.value)}
                     placeholder="Enter PIN Code here"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-1 focus:ring-purple-500 focus:outline-none"
                     autoFocus
                 />
                 <div className="flex justify-end space-x-3">
@@ -245,15 +245,15 @@ const StudentDashboard = () => {
     const SubjectList = ({ subjectsToRender, isEnrollMode = false, onEnrollClick }) => (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-4 bg-white rounded-lg shadow-sm">
-                <h2 className="text-xl font-semibold text-gray-900">{isEnrollMode ? 'Available Courses to Enroll' : 'My Enrolled Subjects'}</h2>
+                <h2 className="text-xl font-semibold text-green-900">{isEnrollMode ? 'Available Courses to Enroll' : 'My Enrolled Subjects'}</h2>
                 <div className="flex flex-wrap gap-3 w-full md:w-auto">
-                    <select value={filterBatchYear} onChange={e => setFilterBatchYear(e.target.value)} className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                    <select value={filterBatchYear} onChange={e => setFilterBatchYear(e.target.value)} className="w-full sm:w-auto px-3 py-2 border border-purple-600 rounded-lg focus:ring-1 focus:ring-purple-800">
                         <option value="">All Batches</option><option value="2021">2021</option><option value="2022">2022</option><option value="2023">2023</option><option value="2024">2024</option><option value="2025">2025</option>
                     </select>
-                    <select value={filterYear} onChange={e => setFilterYear(e.target.value)} className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                    <select value={filterYear} onChange={e => setFilterYear(e.target.value)} className="w-full sm:w-auto px-3 py-2 border border-purple-600 rounded-lg focus:ring-1 focus:ring-purple-800">
                         <option value="">All Years</option><option value="1">1st Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option><option value="4">4th Year</option>
                     </select>
-                    <select value={filterSemester} onChange={e => setFilterSemester(e.target.value)} className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                    <select value={filterSemester} onChange={e => setFilterSemester(e.target.value)} className="w-full sm:w-auto px-3 py-2 border border-purple-600 rounded-lg focus:ring-1 focus:ring-purple-800">
                         <option value="">All Semesters</option><option value="1">1st Semester</option><option value="2">2nd Semester</option>
                     </select>
                 </div>
@@ -266,7 +266,7 @@ hover:scale-105
 transition-transform transition-shadow duration-300 ">
                         <div className="flex items-center justify-between mb-4">
                             <div>
-                                <h3 className="text-lg font-semibold text-black">{subject.name}</h3>
+                                <h3 className="text-lg font-semibold text-green-500">{subject.name}</h3>
                                 <p className="text-sm text-gray-600">{`Batch: ${subject.batchYear} | Year: ${subject.year} | Semester: ${subject.semester}`}</p>
                                 <p className="text-gray-600 mt-1">Subject Code: {subject.subjectCode}</p>
                                 <p className="text-gray-600">Lecturer ID: {subject.lecturerId}</p>
@@ -340,7 +340,7 @@ transition-transform transition-shadow duration-300 ">
               className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
                 activeTab === tab.id
                   ? "bg-pink-100 text-pink-600 font-semibold border-l-4 border-pink-600"
-                  : "text-purple-800 hover:bg-pink-50 hover:text-pink-600"
+                  : "text-purple-800 hover:bg-pink-100 hover:text-pink-600"
               }`}
             >
               <tab.icon size={20} className="mr-3" />
