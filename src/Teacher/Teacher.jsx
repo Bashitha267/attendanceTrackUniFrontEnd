@@ -1,6 +1,6 @@
 import { BookOpen, Edit, Eye, Plus, Search, UserPlus, Users } from 'lucide-react';
 import { useState } from 'react';
-
+import Header from '../Layout/Header'
 const TeacherDashboard= () => {
   const [activeTab, setActiveTab] = useState('courses');
   const [showAddCourse, setShowAddCourse] = useState(false);
@@ -160,7 +160,7 @@ const TeacherDashboard= () => {
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-800"
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-purple-800"
           >
             Enroll Student
           </button>
@@ -203,19 +203,19 @@ const TeacherDashboard= () => {
                   </div>
                   
                   <div className="grid grid-cols-3 gap-4 mt-4">
-                    <div className="text-center p-3 bg-blue-50 rounded-lg">
+                    <div className="text-center p-3 bg-blue-100 rounded-lg">
                       <Users className="text-blue-600 mx-auto mb-1" size={30} />
                       <div className="font-semibold text-blue-600">{course.enrolledStudents}</div>
                       <div className="text-xs text-gray-800">Students</div>
                     </div>
-                    <div className="text-center p-3 bg-green-50 rounded-lg">
+                    <div className="text-center p-3 bg-green-100 rounded-lg">
                       <BookOpen className="text-green-600 mx-auto mb-1" size={30} />
                       <div className="font-semibold text-green-600">24</div>
                       <div className="text-xs text-gray-800">Classes</div>
                     </div>
-                    <div className="text-center p-3 bg-purple-50 rounded-lg">
-                      <Eye className="text-purple-600 mx-auto mb-1" size={30} />
-                      <div className="font-semibold text-purple-600">Active</div>
+                    <div className="text-center p-3 bg-orange-100 rounded-lg">
+                      <Eye className="text-orange-600 mx-auto mb-1" size={30} />
+                      <div className="font-semibold text-orange-600">Active</div>
                       <div className="text-xs text-gray-800">Status</div>
                     </div>
                   </div>
@@ -225,7 +225,7 @@ const TeacherDashboard= () => {
                       <Eye size={16} className="mr-1" />
                       View Details
                     </button>
-                    <button className="flex items-center px-3 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
+                    <button className="flex items-center px-3 py-2 text-sm text-blue-600 bg-gray-100 rounded-lg hover:bg-gray-200">
                       <Edit size={16} className="mr-1" />
                       Edit
                     </button>
@@ -464,6 +464,7 @@ const TeacherDashboard= () => {
   //DEFAULT LOADING 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Header/>
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* <div className="flex items-center justify-between h-16">
@@ -483,8 +484,8 @@ const TeacherDashboard= () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
                     activeTab === tab.id
-                      ? 'bg-purple-50 text-purple-600 border-l-4 border-purple-600'
-                      : 'text-purple-800 hover:bg-pink-50 hover:text-pink-600'
+                      ? 'bg-pink-100 text-pink-600 font-semibold border-l-4 border-pink-600'
+                      : 'text-purple-800 hover:bg-pink-100 hover:text-pink-600'
                   }`}
                 >
                   <Icon size={20} className="mr-3" />
