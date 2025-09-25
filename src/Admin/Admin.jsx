@@ -684,11 +684,11 @@ const handleDelete = (studentId) => {
         <div className="relative flex flex-col lg:flex-row lg:space-x-8 ">
           {/* Sidebar */}
           <div
-            className={`fixed inset-y-0 left-0 w-64  shadow-lg transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:shadow-none  ${
+            className={`fixed inset-y-0 left-0 w-64   h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:shadow-none  ${
               mobileMenuOpen ? "translate-x-0 z-20" : "-translate-x-full"
             }`}
           >
-            <div className="flex flex-col space-y-2 p-4 lg:p-0 bg-purple-200 rounded-lg ">
+            <div className="flex flex-col space-y-2 p-4 lg:p-0 bg-purple-200 rounded-lg lg:h-fit h-screen">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
