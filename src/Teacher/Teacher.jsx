@@ -1,4 +1,4 @@
-import { BookOpen, Edit, Eye, Menu, Plus, Search, UserPlus, Users, X } from 'lucide-react';
+import { BookOpen, Edit, Eye, Menu, Search, Users, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import Header from '../Layout/Header';
 
@@ -39,13 +39,7 @@ const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
           <div>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold text-green-900">My Courses</h2>
-              <button
-                onClick={() => setShowAddCourse(true)}
-                className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-800"
-              >
-                <Plus size={20} className="mr-2" />
-                Add Course
-              </button>
+              
             </div>
 
             <div className="grid gap-6 mt-6">
@@ -104,13 +98,7 @@ const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
           <div>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold text-green-900">Enrolled Students</h2>
-              <button
-                onClick={() => setShowEnrollStudent(true)}
-                className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-800"
-              >
-                <UserPlus size={18} className="mr-2" />
-                Enroll Student
-              </button>
+            
             </div>
 
             {courses.length === 0 ? (
