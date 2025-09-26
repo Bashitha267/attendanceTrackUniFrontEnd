@@ -17,7 +17,7 @@ const SendIcon = () => (
 
 const API_KEY = "AIzaSyAG2dC2-OVTNecpplh4lRJevU2_xdrTHEE"; 
 const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-001" });
 
 
 const createChatbotPrompt = (history, users, subjects, developers) => {
