@@ -1,421 +1,311 @@
-import { Calendar, CheckCircle, ClipboardList, QrCode, Search, Users, XCircle } from 'lucide-react';
-import { useState } from 'react';
-import BarcodeScannerComponent from "react-qr-barcode-scanner";
+import axios from 'axios';
+import { Calendar, ClipboardList, Loader2Icon, Menu, Plus, Users, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import Header from '../Layout/Header';
 
 const RegistrarDashboard = () => {
   const [activeTab, setActiveTab] = useState('mark-register');
-  const [selectedCourse, setSelectedCourse] = useState('');
-  const [selectedDate, setSelectedDate] = useState('');
+  const [addClass, setAddClass] = useState(false);
   const [data, setData] = useState("Not Found");
+  const [isSubmiting, setIsSubmiting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState({ message: "", success: false });
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false); 
+  // const[activeClasses,setActiveClasses]=useState([])
+  const[ongoingClasses,setOngoingClasses]=useState([])
+  const [classesLoading, setClassesLoading] = useState(false);
 
-  // Mock data
-  const courses = [
-    { id: '1', name: 'Computer Science 101', code: 'CS101', teacher: 'Dr. Smith' },
-    { id: '2', name: 'Mathematics', code: 'MATH201', teacher: 'Prof. Johnson' },
-    { id: '3', name: 'Database Systems', code: 'CS301', teacher: 'Dr. Brown' },
-  ];
+  // State for courses and filtering
+  const [courses, setCourses] = useState([]);
+  const [coursesLoading, setCoursesLoading] = useState(false);
+  const [filteredCourses, setFilteredCourses] = useState([]);
+  const [filterBatchYear, setFilterBatchYear] = useState("");
+  const [filterYear, setFilterYear] = useState("");
+  const [filterSemester, setFilterSemester] = useState("");
+  const [selectedCourse, setSelectedCourse] = useState({
+    subjectID: "",
+    lecturer: "",
+  });
 
-  const students = [
-    { 
-      id: '1', 
-      name: 'John Doe', 
-      studentId: 'STU001',
-      status: '',
-      qrScanned: false 
-    },
-    { 
-      id: '2', 
-      name: 'Jane Smith', 
-      studentId: 'STU002',
-      status: '',
-      qrScanned: false 
-    },
-    { 
-      id: '3', 
-      name: 'Mike Johnson', 
-      studentId: 'STU003',
-      status: '',
-      qrScanned: false 
-    },
-    { 
-      id: '4', 
-      name: 'Sarah Wilson', 
-      studentId: 'STU004',
-      status: '',
-      qrScanned: false 
-    },
-  ];
+  const [formDataClass, setFormDataClass] = useState({
+    startTime: "",
+    endTime: "",
+    subjectID: "",
+    lecturer: "",
+    date: "",
+    registor: "",
+    pinCode: ""
+  });
 
+  // --- MOCK DATA ---
   const attendanceRecords = [
-    {
-      id: '1',
-      course: 'Computer Science 101',
-      date: '2025-01-20',
-      present: 32,
-      absent: 3,
-      total: 35,
-      percentage: 91
-    },
-    {
-      id: '2',
-      course: 'Mathematics',
-      date: '2025-01-20',
-      present: 26,
-      absent: 2,
-      total: 28,
-      percentage: 93
-    },
-    {
-      id: '3',
-      course: 'Database Systems',
-      date: '2025-01-19',
-      present: 38,
-      absent: 4,
-      total: 42,
-      percentage: 90
-    },
+    { id: '1', course: 'Computer Science 101', date: '2025-01-20', present: 32, absent: 3, total: 35, percentage: 91 },
+    { id: '2', course: 'Mathematics', date: '2025-01-20', present: 26, absent: 2, total: 28, percentage: 93 },
   ];
-
-  const handleAttendanceChange = (studentId, status) => {
-    // Handle attendance marking logic here
-    console.log(`Student ${studentId} marked as ${status}`);
+  
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setCoursesLoading(true);
+        const response = await axios.get("https://attendance-uni-backend.vercel.app/subjects/getsubjects");
+        if (response.data.success) {
+          setCourses(response.data.subjects);
+        }
+      } catch (err) {
+        console.log("Error fetching courses:", err);
+      } finally {
+        setCoursesLoading(false);
+      }
+    };
+    fetchCourses();
+  }, []);
+  
+  useEffect(() => {
+  const fetchClasses = async () => {
+    try {
+      setClassesLoading(true);
+      const response = await axios.get("https://attendance-uni-backend.vercel.app/class/getActive");
+      if (response.data.success) {
+        // correctly update state
+        setOngoingClasses(response.data.classes);
+        if(ongoingClasses.length>0){
+        console.log("Fetched classes:", ongoingClasses);
+          
+        }
+        console.log(response.data.classes._id)
+        // If you want to log the response immediately:
+      }
+    } catch (err) {
+      console.log("Error fetching classes:", err);
+    } finally {
+      setClassesLoading(false);
+    }
   };
 
-  const MarkRegister = () => (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-green-900 mb-4">Mark Attendance</h3>
-        
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div>
-            <label className="block text-sm font-medium text-purple-800 mb-1">Select Course</label>
-            <select 
-              value={selectedCourse}
-              onChange={(e) => setSelectedCourse(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black"
-            >
-              <option value="">Choose course</option>
-              {courses.map((course) => (
-                <option key={course.id} value={course.id}>
-                  {course.name} ({course.code})
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-purple-800 mb-1">Date</label>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-purple-800 mb-1">Time</label>
-            <input
-              type="time"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black"
-            />
-          </div>
-        </div>
+  fetchClasses();
+}, []);
 
-        {selectedCourse && selectedDate && (
-          <div className="border-t pt-6">
-            <div className="flex justify-between items-center mb-4">
-              <h4 className="font-medium text-gray-900">Student List</h4>
-              <div className="flex space-x-2">
-                <button className="px-3 py-1 text-sm bg-green-100 text-green-700 rounded">
-                  Mark All Present
-                </button>
-                <button className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded">
-                  Mark All Absent
-                </button>
-              </div>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Student
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Student ID
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      QR Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Attendance
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {students.map((student) => (
-                    <tr key={student.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <img
-                            src="https://images.pexels.com/photos/3831849/pexels-photo-3831849.jpeg?auto=compress&cs=tinysrgb&w=40&h=40&fit=crop&crop=face"
-                            alt=""
-                            className="w-8 h-8 rounded-full mr-3"
-                          />
-                          <div className="text-sm font-medium text-gray-900">
-                            {student.name}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {student.studentId}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                          student.qrScanned ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {student.qrScanned ? 'Scanned' : 'Not Scanned'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex space-x-2">
-                          <button
-                            onClick={() => handleAttendanceChange(student.id, 'present')}
-                            className={`px-3 py-1 text-xs font-medium rounded ${
-                              student.status === 'present'
-                                ? 'bg-green-600 text-white'
-                                : 'bg-green-100 text-green-700 hover:bg-green-200'
-                            }`}
-                          >
-                            Present
-                          </button>
-                          <button
-                            onClick={() => handleAttendanceChange(student.id, 'absent')}
-                            className={`px-3 py-1 text-xs font-medium rounded ${
-                              student.status === 'absent'
-                                ? 'bg-red-600 text-white'
-                                : 'bg-red-100 text-red-700 hover:bg-red-200'
-                            }`}
-                          >
-                            Absent
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            
-            <div className="mt-6 flex justify-end">
-              <button className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                Save Attendance
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  useEffect(() => {
+    const filtered = courses.filter((course) => {
+      const matchBatchYear = filterBatchYear ? course.batchYear === Number(filterBatchYear) : true;
+      const matchYear = filterYear ? course.year === Number(filterYear) : true;
+      const matchSemester = filterSemester ? course.semester === Number(filterSemester) : true;
+      return matchBatchYear && matchYear && matchSemester;
+    });
+    setFilteredCourses(filtered);
+  }, [courses, filterBatchYear, filterYear, filterSemester]);
 
-  const QRScanner = () => {
-  const [data, setData] = useState("Not Found");
+  const handleInputChangeCourse = (e) => {
+    setFormDataClass({ ...formDataClass, [e.target.name]: e.target.value });
+  };
 
-  return (
-    <div className="space-y-6 flex flex-col items-center">
-      <div className="w-full flex justify-center mt-4 min-h-[600px]">
-        <BarcodeScannerComponent
-          width={600}
-          height={600}
-          onUpdate={(err, result) => {
-            if (result) {
-              setData(result.text);
-              console.log("Scanned:", result.text);
-            } else {
-              setData("Not Found");
-            }
-          }}
-        />
-      </div>
-      <p className="text-center font-medium text-gray-700">{data}</p>
-    </div>
-  );
-};
-
-  const AttendanceRecords = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-green-900">Attendance Records</h2>
-        <div className="flex space-x-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 text-gray-500" size={18} />
-            <input
-              type="text"
-              placeholder="Search records..."
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-500"
-            />
-          </div>
-          <input
-            type="date"
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-gray-500"
-          />
-        </div>
-      </div>
-
-      <div className="grid gap-6">
-        {attendanceRecords.map((record) => (
-          <div key={record.id} className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-lg font-semibold text-black">{record.course}</h3>
-                <p className="text-gray-600  flex items-center">
-                  <Calendar className="mr-1" size={16} />
-                  {record.date}
-                </p>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-pink-800">{record.percentage}%</div>
-                <div className="text-sm text-gray-550">Attendance</div>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-3 gap-3">
-              <div className="text-center p-3 bg-green-50 rounded-lg">
-                <CheckCircle className="text-green-600 mx-auto mb-1" size={30} />
-                <div className="font-semibold text-green-600">{record.present}</div>
-                <div className="text-xs text-gray-800">Present</div>
-              </div>
-              <div className="text-center p-3 bg-red-50 rounded-lg">
-                <XCircle className="text-red-600 mx-auto mb-1" size={30} />
-                <div className="font-semibold text-red-600">{record.absent}</div>
-                <div className="text-xs text-gray-800">Absent</div>
-              </div>
-              <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <Users className="text-blue-600 mx-auto mb-1" size={30} />
-                <div className="font-semibold text-blue-600">{record.total}</div>
-                <div className="text-xs text-gray-800">Total</div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  const Reports = () => (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-green-900">Attendance Reports</h2>
+  const handleSubmitClass = async (e) => {
+    e.preventDefault();
+    try {
+      setIsSubmiting(true);
+      const payload = {
+        startTime: formDataClass.startTime,
+        endTime: formDataClass.endTime,
+        subjectID: selectedCourse.subjectID,
+        lecturer: selectedCourse.lecturer,
+        date: formDataClass.date,
+        registor: formDataClass.registor,
+        pinCode: formDataClass.pinCode
+      };
+      const res = await axios.post("https://attendance-uni-backend.vercel.app/class/addclass", payload);
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-green-50 p-6 rounded-lg shadow-sm">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-green-600">89%</div>
-            <div className="text-sm text-gray-800">Overall Attendance</div>
-          </div>
-        </div>
-        <div className="bg-blue-50 p-6 rounded-lg shadow-sm">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-blue-600">156</div>
-            <div className="text-sm text-gray-800">Classes Held</div>
-          </div>
-        </div>
-        <div className="bg-red-50 p-6 rounded-lg shadow-sm">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-red-600">23</div>
-            <div className="text-sm text-gray-800">Low Attendance Cases</div>
-          </div>
-        </div>
-      </div>
+      if (res.data.success) {
+        setSubmitSuccess({ success: true, message: res.data.message || "Class added successfully!" });
+        setFormDataClass({ startTime: "", endTime: "", subjectID: "", lecturer: "", date: "", registor: "", pinCode: "" });
+        setAddClass(false);
+      } else {
+        setSubmitSuccess({ success: false, message: res.data.message || "Failed to add class." });
+      }
+    } catch (e) {
+      console.log(e);
+      setSubmitSuccess({ success: false, message: "A server error occurred." });
+    } finally {
+      setIsSubmiting(false);
+      setTimeout(() => {
+        setSubmitSuccess({ success: false, message: "" });
+      }, 3000);
+    }
+  };
 
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Course-wise Attendance Summary</h3>
-        <div className="space-y-4">
-          {courses.map((course) => (
-            <div key={course.id} className="border rounded-lg p-4">
-              <div className="flex justify-between items-center mb-2">
-                <h4 className="font-medium text-gray-900">{course.name}</h4>
-                <span className="px-2 py-1 bg-green-100 text-green-800 text-sm font-medium rounded">
-                  {Math.floor(Math.random() * 20 + 80)}%
-                </span>
-              </div>
-              <div className="text-sm text-gray-700">
-                Teacher: {course.teacher} • Code: {course.code}
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                <div 
-                  className="bg-green-600 h-2 rounded-full"
-                  style={{ width: `${Math.floor(Math.random() * 20 + 80)}%` }}
-                ></div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
+  // --- RENDER COMPONENTS ---
+  // const QRScanner = () => ( /* ... QRScanner content ... */ );
+  // const AttendanceRecords = () => ( /* ... AttendanceRecords content ... */ );
+  // const Reports = () => ( /* ... Reports content ... */ );
 
   const renderContent = () => {
     switch (activeTab) {
       case 'mark-register':
-        return <MarkRegister />;
-      case 'qr-scanner':
-        return <QRScanner />;
-      case 'attendance':
-        return <AttendanceRecords />;
-      case 'reports':
-        return <Reports />;
-      case 'profile':
         return (
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h3 className="text-lg font-semibold text-green-900 mb-6">Registrar Profile</h3>
-            <div className="flex items-start space-x-8">
-              <img
-                src="https://images.pexels.com/photos/3831849/pexels-photo-3831849.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop&crop=face"
-                alt="Profile"
-                className="w-35 h-35 rounded-full object-cover"
-              />
-              <div className="flex-1">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-1">Name</label>
-                    <p className="text-gray-700">Jane Wilson</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-1">Employee ID</label>
-                    <p className="text-gray-700">REG001</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-1">Email</label>
-                    <p className="text-gray-700">jane.wilson@university.edu</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-1">Department</label>
-                    <p className="text-gray-700">Registry Office</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-1">Access Level</label>
-                    <p className="text-gray-700">Attendance Management</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-900 mb-1">Joining Date</label>
-                    <p className="text-gray-700">March 15, 2020</p>
-                  </div>
-                </div>
+          <div className="space-y-6 flex flex-col">
+            <div className="bg-white rounded-lg shadow-sm py-2 px-2 sm:p-6">
+              <div className='flex flex-row justify-between items-center mb-6'>
+                <h3 className="text-xl font-semibold text-green-900">Lectures</h3>
+                <button
+                  className='bg-pink-600 flex flex-row items-center px-3 text-white py-2 rounded-xl cursor-pointer hover:bg-pink-700 transition-colors'
+                  onClick={() => { setAddClass(true); }}
+                >
+                  <Plus size={20} color='white' className='mr-1'/>
+                  <span className="hidden sm:inline">Add New Lecture</span>
+                  <span className="sm:hidden">New</span>
+                </button>
               </div>
+
+              {addClass && (
+                <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 border mb-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-lg font-semibold text-gray-900">Add New Lecture</h3>
+                    <button onClick={() => setAddClass(false)} className="text-gray-500 hover:text-gray-700">
+                      <X size={28} className="text-gray-600 hover:text-gray-900"/>
+                    </button>
+                  </div>
+                  <form className="space-y-4" onSubmit={handleSubmitClass}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <input type="text" name="registor" placeholder="Registrar ID" value={formDataClass.registor} onChange={handleInputChangeCourse} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-0"/>
+                      <input type="number" name="startTime" placeholder="Start Time" value={formDataClass.startTime} onChange={handleInputChangeCourse} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-0"/>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                       <input type="number" name="endTime" placeholder="End Time" value={formDataClass.endTime} onChange={handleInputChangeCourse} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-0"/>
+                       <input type="number" name="pinCode" placeholder="Pin code" value={formDataClass.pinCode} onChange={handleInputChangeCourse} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-0"/>
+                    </div>
+                    <div className="grid grid-cols-1">
+                      <input type="date" name="date" placeholder="Date" value={formDataClass.date} onChange={handleInputChangeCourse} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-0"/>
+                    </div>
+                    
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 my-6">
+                      <h2 className="text-lg font-semibold text-gray-900">Select a Course</h2>
+                      <div className="flex flex-wrap gap-3 w-full md:w-auto">
+                        {/* Filter Selects */}
+                        <select value={filterBatchYear} onChange={(e) => setFilterBatchYear(e.target.value)} className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500">
+                           <option value="">Batch</option>
+                           <option value="2021">2021</option>
+                           <option value="2022">2022</option>
+                           <option value="2023">2023</option>
+                           <option value="2024">2024</option>
+                        </select>
+                        <select value={filterYear} onChange={(e) => setFilterYear(e.target.value)} className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500">
+                          <option value="">Year</option>
+                           <option value="1">1st</option>
+                           <option value="2">2nd</option>
+                           <option value="3">3rd</option>
+                           <option value="4">4th</option>
+                        </select>
+                        <select value={filterSemester} onChange={(e) => setFilterSemester(e.target.value)} className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500">
+                           <option value="">Semester</option>
+                           <option value="1">1st</option>
+                           <option value="2">2nd</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4 max-h-64 overflow-y-auto pr-2">
+                      {coursesLoading ? (
+                        <div className="flex justify-center mt-14"><Loader2Icon size={40} className="animate-spin text-pink-700" /></div>
+                      ) : filteredCourses.length > 0 ? (
+                        filteredCourses.map((course) => (
+                          <div
+                            key={course._id}
+                            className={`rounded-lg shadow-sm hover:shadow-md p-4 border border-gray-200 hover:border-pink-400 cursor-pointer transition-all ${selectedCourse.subjectID === course._id ? "bg-pink-600 text-white" : "bg-white text-black"}`}
+                            onClick={() => setSelectedCourse({ subjectID: course._id, lecturer: course.lecturerId })}
+                          >
+                           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                              <div>
+                                 <h3 className="text-lg font-semibold">{course.name}</h3>
+                                 <p className="font-mono text-sm">{course.subjectCode}</p>
+                                 <p className="text-sm">Year: {course.year}, Sem: {course.semester}, Batch: {course.batchYear}</p>
+                              </div>
+                              <div className="text-right">
+                                 <p className="text-sm">Lecturer ID: {course.lecturerId}</p>
+                                 <p className={`text-xs font-semibold px-2 py-1 rounded-full inline-block mt-1 ${selectedCourse.subjectID === course._id ? "bg-pink-100 text-pink-700" : "bg-gray-100 text-gray-700"}`}>
+                                   {course.studentsEnrolled?.length || 0} Students
+                                 </p>
+                              </div>
+                           </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-10 text-gray-500"><p>No courses match the selected filters.</p></div>
+                      )}
+                    </div>
+
+                    <div className="flex justify-end space-x-3 pt-4">
+                      <button type="button" onClick={() => setAddClass(false)} className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">Cancel</button>
+                      <button type="submit" disabled={isSubmiting} className="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 disabled:bg-pink-300 flex items-center justify-center min-w-[120px]">
+                        {isSubmiting ? <Loader2Icon size={24} className='text-white animate-spin'/> : "Add Lecture"}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+            </div>
+            {/* active classes */}
+            <div className='bg-white rounded-lg shadow-sm py-2 px-2 sm:p-6 flex flex-col'>
+              <div className='flex flex-row justify-between items-center mb-6'>
+                <h3 className="text-xl font-semibold text-green-900">Active Lectures</h3>
+                {/* <button
+                  className='bg-pink-600 flex flex-row items-center px-3 text-white py-2 rounded-xl cursor-pointer hover:bg-pink-700 transition-colors'
+                  onClick={() => { setAddClass(true); }}
+                >
+                  <Plus size={20} color='white' className='mr-1'/>
+                  <span className="hidden sm:inline">Add New Lecture</span>
+                  <span className="sm:hidden">New</span>
+                </button> */}
+              </div>
+            {/* classes */}
+             <div className="space-y-4 max-h-64 overflow-y-auto pr-2">
+                      {classesLoading ? (
+                        <div className="flex justify-center mt-14"><Loader2Icon size={40} className="animate-spin text-pink-700" /></div>
+                      ) : ongoingClasses.length > 0 ? (
+                        ongoingClasses.map((classes) => (
+                          <div
+                            key={classes._id}
+                            className={`rounded-lg shadow-sm hover:shadow-md p-4 border border-gray-200 hover:border-pink-400 cursor-pointer transition-all ${selectedCourse.subjectID === classes._id ? "bg-pink-600 text-white" : "bg-white text-black"}`}
+                           
+                          >
+                           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                              <div>
+                                 <h3 className="text-lg font-semibold">{classes.subjectID.name}</h3>
+                                 <p className="font-mono text-sm ">{classes.lecturer.name}</p>
+                                 <p className="text-sm text-gray-700">{classes.startTime}:00 - {classes.endTime}:00</p>
+                                 <p className='text-sm text-gray-700'>
+                                  {new Date(classes.date).toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  })}
+                                 </p>
+                              </div>
+                              <div className="text-right ">
+                                 {/* <p className="text-sm">Lecturer ID: {classes.lecturer.reg_no}</p> */}
+                                 <p className="text-sm mb-1">{classes.registor.name}</p>
+
+                                 <p className="text-xs font-semibold px-2 py-1 rounded-full inline-block mt-1 bg-pink-600 text-white">
+                                   {classes.studentsAttended?.length || 0} Students
+                                 </p>
+                              </div>
+                           </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-10 text-gray-500"><p>No Active Classes ongoing .</p></div>
+                      )}
+                    </div>
             </div>
           </div>
         );
-      default:
-        return null;
+      case 'qr-scanner': return <QRScanner />;
+      case 'attendance': return <AttendanceRecords />;
+      case 'reports': return <Reports />;
+      case 'profile': return (<div className="bg-white rounded-lg shadow-sm p-6"> Profile Content </div>);
+      default: return null;
     }
   };
 
   const tabs = [
-    { id: 'mark-register', label: 'Mark Register', icon: ClipboardList },
-    { id: 'qr-scanner', label: 'QR Scanner', icon: QrCode },
+    { id: 'mark-register', label: 'Classes', icon: ClipboardList },
     { id: 'attendance', label: 'Records', icon: Calendar },
     { id: 'reports', label: 'Reports', icon: Users },
     { id: 'profile', label: 'Profile', icon: Users },
@@ -423,37 +313,73 @@ const RegistrarDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-        <Header/>
-    
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex space-x-8">
-          <div className="w-64 space-y-2">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
-                    activeTab === tab.id
-                      ? 'bg-pink-100 text-pink-600 font-semibold border-l-4 border-pink-600'
-                      : 'text-purple-800 hover:bg-pink-100 hover:text-pink-600'
-                  }`}
-                >
-                  <Icon size={20} className="mr-3" />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
+      <Header />
+      
+      {/* Overlay for mobile menu */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden" 
+          onClick={() => setMobileMenuOpen(false)}
+        ></div>
+      )}
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
+        {/* Mobile Menu Button */}
+        <div className="lg:hidden mb-4">
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="flex items-center w-full px-4 py-3 text-left rounded-lg bg-white shadow-sm text-purple-800"
+          >
+            <Menu size={20} className="mr-3" />
+            {tabs.find((tab) => tab.id === activeTab)?.label || "Menu"}
+          </button>
+        </div>
+
+        <div className="flex flex-col lg:flex-row lg:space-x-8">
+          {/* Sidebar */}
+          <div className={`fixed inset-y-0 left-0 w-64 bg-white p-4 shadow-lg transform transition-transform duration-300 ease-in-out z-30 lg:relative lg:w-64 lg:translate-x-0 lg:shadow-none lg:bg-transparent lg:p-0 ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+            <div className="space-y-2">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setActiveTab(tab.id);
+                      setMobileMenuOpen(false); // Close menu on selection
+                    }}
+                    className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
+                      activeTab === tab.id
+                        ? 'bg-pink-100 text-pink-600 font-semibold border-l-4 border-pink-600'
+                        : 'text-gray-600 hover:bg-pink-50 hover:text-pink-600'
+                    }`}
+                  >
+                    <Icon size={20} className="mr-3" />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          
+          {/* Main Content */}
           <div className="flex-1">
             {renderContent()}
+            {submitSuccess.message && (
+              <div
+                className={`fixed top-24 right-4 z-50 px-4 py-2 rounded shadow-lg max-w-xs text-white ${
+                  submitSuccess.success ? "bg-green-500" : "bg-red-500"
+                } transition-all duration-300`}
+              >
+                {submitSuccess.message}
+              </div>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
-};
+}; 
 
 export default RegistrarDashboard;
