@@ -135,7 +135,7 @@ const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white  divide-gray-200">
                       {courses.flatMap((course) =>
                         course.studentsEnrolled.map((studentReg) => (
                           <tr key={studentReg} className="hover:bg-purple-50">

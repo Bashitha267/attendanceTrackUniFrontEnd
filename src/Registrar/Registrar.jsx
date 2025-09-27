@@ -1,6 +1,7 @@
 import { Calendar, CheckCircle, ClipboardList, QrCode, Search, Users, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
+import Header from '../Layout/Header';
 
 const RegistrarDashboard = () => {
   const [activeTab, setActiveTab] = useState('mark-register');
@@ -220,29 +221,29 @@ const RegistrarDashboard = () => {
     </div>
   );
 
-  const QRScanner = () => (
-    <div className="space-y-6">
-    
+  const QRScanner = () => {
+  const [data, setData] = useState("Not Found");
 
-
-
-    <div>
-      <BarcodeScannerComponent
-        width={600}
-        height={600}
-        onUpdate={(err, result) => {
-          if (result){
-            console.log("correct")
-          };
-        }}
-      />
-      <p>{data}</p>
-    </div>
-
-
-      
+  return (
+    <div className="space-y-6 flex flex-col items-center">
+      <div className="w-full flex justify-center mt-4 min-h-[600px]">
+        <BarcodeScannerComponent
+          width={600}
+          height={600}
+          onUpdate={(err, result) => {
+            if (result) {
+              setData(result.text);
+              console.log("Scanned:", result.text);
+            } else {
+              setData("Not Found");
+            }
+          }}
+        />
+      </div>
+      <p className="text-center font-medium text-gray-700">{data}</p>
     </div>
   );
+};
 
   const AttendanceRecords = () => (
     <div className="space-y-6">
@@ -422,14 +423,8 @@ const RegistrarDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <h1 className="text-2xl font-bold text-red-600">Registrar Dashboard</h1>
-          </div>
-        </div>
-      </div>
-
+        <Header/>
+    
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex space-x-8">
           <div className="w-64 space-y-2">

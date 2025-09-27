@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Header from "../Layout/Header";
 import student from "../assets/graduated.png";
 
+import { QRCodeCanvas } from 'qrcode.react';
 
 const EnrollmentFeedback = ({ status, onClose }) => {
     if (!status || !status.message) return null;
@@ -234,7 +235,20 @@ const StudentDashboard = () => {
                 <div className="bg-white rounded-lg shadow-sm p-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center"><QrCode className="mr-2" size={20} /> Student QR Code</h3>
                     <div className="text-center">
-                        <div className="bg-gray-100 p-8 rounded-lg inline-block"><QrCode size={130} className="text-purple-950" /></div>
+                        <div className="bg-gray-100 p-8 rounded-lg inline-block">
+                            <div className="mt-4 flex flex-col items-center">
+  <QRCodeCanvas
+    value={profileData.reg_no}  // Replace with registrar reg_no
+    size={240}      // Adjust size as needed
+    bgColor="#ffffff"
+    fgColor="#000000"
+    level="H"
+    includeMargin={true}
+  />
+  <p className="mt-2 text-sm text-gray-700">Registrar ID:{profileData.reg_no}</p>
+</div>
+
+                            </div>
                         <p className="text-sm text-gray-600 mt-2">Use this QR code for attendance marking</p>
                     </div>
                 </div>

@@ -16,6 +16,7 @@
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.542.0",
     "openai": "^5.22.0",
+    "qrcode.react": "^4.2.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-qr-barcode-scanner": "^2.1.8",
