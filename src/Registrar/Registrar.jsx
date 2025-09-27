@@ -1,8 +1,9 @@
 import axios from 'axios';
-import { Calendar, ClipboardList, Loader2Icon, Menu, Plus, Users, X } from 'lucide-react';
+import { Calendar, Check, ClipboardList, Loader2Icon, Menu, Plus, PlusIcon, QrCode, Trash2, Users, X } from 'lucide-react';
+import { QRCodeCanvas } from 'qrcode.react';
 import { useEffect, useState } from 'react';
+import BarcodeScannerComponent from "react-qr-barcode-scanner";
 import Header from '../Layout/Header';
-
 const RegistrarDashboard = () => {
   const [activeTab, setActiveTab] = useState('mark-register');
   const [addClass, setAddClass] = useState(false);
@@ -11,9 +12,67 @@ const RegistrarDashboard = () => {
   const [submitSuccess, setSubmitSuccess] = useState({ message: "", success: false });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false); 
   // const[activeClasses,setActiveClasses]=useState([])
-  const[ongoingClasses,setOngoingClasses]=useState([])
-  const [classesLoading, setClassesLoading] = useState(false);
+  const[ongoingClasses,setOngoingClasses]=useState([]);
+    const [inputCode, setInputCode] = useState('');
 
+  const [classesLoading, setClassesLoading] = useState(false);
+    const [profileData, setProfileData] = useState(null);
+    const[selectedClass,setSelectedClass]=useState("")
+    
+//  marking attendance
+const[userData,setUserData]=useState({})
+const[gotID,setGotId]=useState("")
+const[userLoading,setUserLoading]=useState(false)
+
+
+const handleAddAttendance =async ()=>{
+  try {
+    const response = await axios.post(
+      `https://attendance-uni-backend.vercel.app/class/addattendance/${selectedClass._id}`,
+      { "studentId":userData._id }   
+    );
+
+    if (response.data.success) {
+    setSubmitSuccess({success:true,message:"Student Added Successfully"});
+    setUserData("")
+    setGotId("")
+      setTimeout(() => {
+        setSubmitSuccess({ success: false, message: "" });
+      }, 3000);
+
+    } else {
+        setSubmitSuccess({success:false,message:response.data.message});
+      setTimeout(() => {
+        setSubmitSuccess({ success: false, message: "" });
+      }, 3000);
+    }
+  } catch (error) {
+   setSubmitSuccess({success:false,message:"Server Error"});
+      setTimeout(() => {
+        setSubmitSuccess({ success: false, message: "" });
+      }, 3000);
+  }
+}
+useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setUserLoading(true);
+        if(!gotID){
+          return
+        }
+        const response = await axios.get(`https://attendance-uni-backend.vercel.app/users/getbyid/${gotID}`);
+        if (response.data.success) {
+          setUserData(response.data.user);
+
+        }
+      } catch (err) {
+        console.log("Error fetching courses:", err);
+      } finally {
+        setUserLoading(false);
+      }
+    };
+    fetchCourses();
+  }, [gotID]);
   // State for courses and filtering
   const [courses, setCourses] = useState([]);
   const [coursesLoading, setCoursesLoading] = useState(false);
@@ -25,7 +84,23 @@ const RegistrarDashboard = () => {
     subjectID: "",
     lecturer: "",
   });
+      useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const storedUser = localStorage.getItem("user");
+                if (!storedUser) throw new Error("User not found in localStorage.");
+                
+                const userProfile = JSON.parse(storedUser);
+                setProfileData(userProfile);
 
+                
+            } catch (err) {
+                console.error("Error fetching data:", err);
+            } finally {
+            }
+        };
+        fetchData();
+    }, []);
   const [formDataClass, setFormDataClass] = useState({
     startTime: "",
     endTime: "",
@@ -37,10 +112,10 @@ const RegistrarDashboard = () => {
   });
 
   // --- MOCK DATA ---
-  const attendanceRecords = [
-    { id: '1', course: 'Computer Science 101', date: '2025-01-20', present: 32, absent: 3, total: 35, percentage: 91 },
-    { id: '2', course: 'Mathematics', date: '2025-01-20', present: 26, absent: 2, total: 28, percentage: 93 },
-  ];
+  // const attendanceRecords = [
+  //   { id: '1', course: 'Computer Science 101', date: '2025-01-20', present: 32, absent: 3, total: 35, percentage: 91 },
+  //   { id: '2', course: 'Mathematics', date: '2025-01-20', present: 26, absent: 2, total: 28, percentage: 93 },
+  // ];
   
   useEffect(() => {
     const fetchCourses = async () => {
@@ -82,7 +157,7 @@ const RegistrarDashboard = () => {
   };
 
   fetchClasses();
-}, []);
+}, [gotID]);
 
   useEffect(() => {
     const filtered = courses.filter((course) => {
@@ -130,11 +205,44 @@ const RegistrarDashboard = () => {
       }, 3000);
     }
   };
+  const checkPinCode = () => {
+  
+  setSubmitSuccess({message:"",success:false});
 
-  // --- RENDER COMPONENTS ---
-  // const QRScanner = () => ( /* ... QRScanner content ... */ );
-  // const AttendanceRecords = () => ( /* ... AttendanceRecords content ... */ );
-  // const Reports = () => ( /* ... Reports content ... */ );
+  if (inputCode === selectedClass.pinCode) {
+    setSubmitSuccess({ success: true, message: "Pincode Verified" });
+    setInputCode("")
+    setActiveTab("attendance");
+
+    setTimeout(() => {
+      setSubmitSuccess({message:"",success:false});
+    }, 3000);
+
+    return;
+  }
+
+  setSubmitSuccess({ success: false, message: "Invalid Pincode" });
+    setInputCode("")
+
+  setActiveTab("mark-register");
+
+  setTimeout(() => {
+    setSubmitSuccess({message:"",success:false});
+  }, 3000);
+};
+
+//  scanning section
+ const [scanning, setScanning] = useState(false);
+  const [scannedData, setScannedData] = useState("");
+
+  const handleScan = (err, result) => {
+    if (result) {
+      setScannedData(result.text);
+      setGotId(result.text) // Display scanned result for testing
+      setScanning(false); // Stop scanning after success (optional)
+      // Later, you can push this scanned data to your attendance list or API
+    }
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -241,6 +349,41 @@ const RegistrarDashboard = () => {
                 </div>
               )}
             </div>
+            {
+              selectedClass && (
+                   <div className="fixed inset-0  bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+                
+                
+
+                <h2 className="text-xl font-semibold mb-2 text-gray-800">Go to Class</h2>
+                <p className="mb-4 text-gray-600">
+                    Enter the PIN code for <strong className="text-pink-700">{selectedClass.subjectID.name}</strong> to take attendance.
+                </p>
+                <input
+                    type="text"
+                    value={inputCode}
+                    onChange={(e) => setInputCode(e.target.value)}
+                    placeholder="Enter PIN Code here"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-1 focus:ring-pink-500 focus:outline-none"
+                    autoFocus
+                />
+                <div className="flex justify-end space-x-3">
+                    <button onClick={()=>{
+                      setSelectedClass("")
+                    }} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors">
+                        Cancel
+                    </button>
+                    <button onClick={checkPinCode} className="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors">
+                        Confirm
+                    </button>
+                </div>
+                {/* <EnrollmentFeedback status={enrollmentStatus} onClose={() => setEnrollmentStatus({ message: null, type: null })} /> */}
+
+            </div>
+        </div>
+              )
+            }
             {/* active classes */}
             <div className='bg-white rounded-lg shadow-sm py-2 px-2 sm:p-6 flex flex-col'>
               <div className='flex flex-row justify-between items-center mb-6'>
@@ -264,7 +407,9 @@ const RegistrarDashboard = () => {
                             key={classes._id}
                             className={`rounded-lg shadow-sm hover:shadow-md p-4 border border-gray-200 hover:border-pink-400 cursor-pointer transition-all ${selectedCourse.subjectID === classes._id ? "bg-pink-600 text-white" : "bg-white text-black"}`}
                            
-                          >
+                          onClick={()=>{
+                            setSelectedClass(classes)
+                          }}>
                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                               <div>
                                  <h3 className="text-lg font-semibold">{classes.subjectID.name}</h3>
@@ -278,11 +423,11 @@ const RegistrarDashboard = () => {
   })}
                                  </p>
                               </div>
-                              <div className="text-right ">
+                              <div className="text-left  lg:text-right ">
                                  {/* <p className="text-sm">Lecturer ID: {classes.lecturer.reg_no}</p> */}
-                                 <p className="text-sm mb-1">{classes.registor.name}</p>
+                                 <p className="text-sm mb-1">Registor Name:{classes.registor.name}</p>
 
-                                 <p className="text-xs font-semibold px-2 py-1 rounded-full inline-block mt-1 bg-pink-600 text-white">
+                                 <p className="text-xs font-semibold px-3 py-1 rounded-full inline-block mt-1 bg-pink-600 text-white">
                                    {classes.studentsAttended?.length || 0} Students
                                  </p>
                               </div>
@@ -297,16 +442,167 @@ const RegistrarDashboard = () => {
           </div>
         );
       case 'qr-scanner': return <QRScanner />;
-      case 'attendance': return <AttendanceRecords />;
+      case 'attendance': return (
+       <div className="space-y-6">
+        <div className='bg-white rounded-lg shadow-sm p-4'>
+      <div className=" flex flex-col sm:flex-row lgS:items-center lg:justify-between ">
+  {/* Lecture Info */}
+  <div>
+    <h2 className="text-lg font-semibold text-gray-800">{selectedClass.subjectID.name}</h2>
+    <p className="text-sm text-gray-500">Lecturer Name:{selectedClass.lecturer.name}</p>
+    <p className="text-sm text-gray-500">Registor Name:{selectedClass.registor.name}</p>
+
+  </div>
+
+  {/* Time Info */}
+  <div className="mt-3 sm:mt-0 flex items-center space-x-4">
+    <div>
+      <p className="text-xs text-gray-500 uppercase">Start Time</p>
+      <p className="text-sm font-medium text-gray-800">09:00 AM</p>
+    </div>
+    <div>
+      <p className="text-xs text-gray-500 uppercase">End Time</p>
+      <p className="text-sm font-medium text-gray-800">11:00 AM</p>
+    </div>
+  </div>
+</div>
+</div>
+      <div className="bg-white rounded-lg shadow-sm p-6 border-2 border-pink-800">
+        {/* Add Attendance Button */}
+        <div className='flex lg:flex-row justify-between flex-col gap-3'>
+<div className='items-center text-lg font-semibold text-green-900 lg:w-fit px-2 '>Add Attendance</div>
+        <button
+          onClick={() => setScanning((prev) => !prev)}
+          className="bg-pink-600 text-white px-4 py-2 rounded-lg w-fit hover:bg-pink-700 transition duration-200 items-center"
+        >
+          {scanning ? <X size={24}></X> : <PlusIcon size={24}></PlusIcon>}
+        </button> 
+        </div>
+        
+
+        {/* QR Code Scanner */}
+        {scanning && (
+          <div className="mt-4  rounded-lg overflow-hidden max-w-3xl justify-center items-center flex flex-row">
+            <BarcodeScannerComponent
+              width={450}
+              height={50}
+              onUpdate={handleScan}
+            />
+          </div>
+        )}
+
+        {/* Scanned Data Display (for testing) */}
+        {scannedData && (
+          <div className="mt-4">
+            <p className="font-medium text-green-600">
+              Scanned Data: {scannedData}
+            </p>
+          </div>
+        )}
+      </div>
+           {
+              gotID && (
+                   <div className="fixed inset-0  bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-50">
+                    {userLoading && (
+                      <div className='animate-spin text-pink-800'><Loader2Icon size={35} ></Loader2Icon></div>
+                    )}
+            {!userLoading && (<div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md flex flex-col border-2 border-pink-800">
+                
+                
+
+                <h2 className="text-xl text-center font-semibold mb-3 text-green-900 ">Student Information</h2>
+                <div className="  justify-center flex flex-row items-center mb-2 mt-2">
+                   <div className='bg-pink-300 w-32 h-32'></div>
+                </div>
+                <h3 className='text-lg font-semibold mb-2 text-gray-800'>Student Name: {userData.name|| ""}</h3>
+                <p className='text-lg font-semibold mb-2 text-gray-800'>Registration Number: {userData.reg_no || ""}</p>
+
+                <div className="flex justify-center space-x-3 mt-2">
+                    <button onClick={()=>{
+                      setGotId("")
+                    }} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors">
+                        Cancel
+                    </button>
+                    <button onClick={handleAddAttendance} className="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors">
+                        Add
+                    </button>
+                </div>
+                {/* <EnrollmentFeedback status={enrollmentStatus} onClose={() => setEnrollmentStatus({ message: null, type: null })} /> */}
+
+            </div>)}
+        </div>
+    )
+            }
+      {/* Student List */}
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <h2 className="text-lg font-semibold mb-3">Students Attended</h2>
+        {selectedClass.studentsAttended && selectedClass.studentsAttended.length > 0 ? (
+          <ul className="space-y-1">
+            {selectedClass.studentsAttended.map((student, index) => (
+              <li key={index} className="border-b pb-1">
+                {student}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-gray-500">No students attended yet.</p>
+        )}
+      </div>
+      <div className='flex flex-row gap-4 lg:justify-end justify-center '>
+        <div className='flex flex-row gap-2 bg-red-600 hover:bg-red-800 text-white py-2 items-center px-3 rounded-2xl ' >Delete  <Trash2></Trash2></div>
+        <div className='flex flex-row gap-2 bg-green-600 hover:bg-green-800 py-2 px-3 rounded-2xl items-center text-white'>Complete   <Check></Check></div>
+        
+      </div>
+    </div>
+  
+      );
       case 'reports': return <Reports />;
-      case 'profile': return (<div className="bg-white rounded-lg shadow-sm p-6"> Profile Content </div>);
+      case 'profile': return (
+        profileData && (
+            <div className="space-y-6">
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                    <h3 className="text-lg font-semibold text-green-900 mb-6">Register Information</h3>
+                    <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-8">
+                        <img src={profileData.img} alt="Profile" className="w-32 h-32 rounded-full object-cover border-4 border-gray-200" />
+                        <div className="flex-1">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div><label className="block text-sm font-medium text-gray-900">Name</label><p className="text-gray-700">{profileData.name}</p></div>
+                                <div><label className="block text-sm font-medium text-gray-900">Register ID</label><p className="text-gray-700">{profileData.reg_no}</p></div>
+                                <div><label className="block text-sm font-medium text-gray-900">Email</label><p className="text-gray-700">{profileData.email}</p></div>
+                                <div><label className="block text-sm font-medium text-gray-900">Department</label><p className="text-gray-700">Computer Science</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center"><QrCode className="mr-2" size={20} /> Register QR Code</h3>
+                    <div className="text-center">
+                        <div className="bg-gray-100 p-8 rounded-lg inline-block">
+                            <div className="mt-4 flex flex-col items-center">
+  <QRCodeCanvas
+    value={profileData.reg_no}  // Replace with registrar reg_no
+    size={240}      // Adjust size as needed
+    bgColor="#ffffff"
+    fgColor="#000000"
+    level="H"
+    includeMargin={true}
+  />
+  <p className="mt-2 text-sm text-gray-700">Registrar ID:{profileData.reg_no}</p>
+</div>
+
+                            </div>
+                    </div>
+                </div>
+            </div>
+        )
+      );
       default: return null;
     }
   };
 
   const tabs = [
     { id: 'mark-register', label: 'Classes', icon: ClipboardList },
-    { id: 'attendance', label: 'Records', icon: Calendar },
+    { id: 'records', label: 'Records', icon: Calendar },
     { id: 'reports', label: 'Reports', icon: Users },
     { id: 'profile', label: 'Profile', icon: Users },
   ];
