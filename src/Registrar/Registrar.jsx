@@ -109,7 +109,6 @@ const RegistrarDashboard = () => {
     fetchCourses();
   }, [gotID]);
 
-  // ✅ CORRECTED: Fetches all classes on mount and refetches when needed
   useEffect(() => {
     const fetchAllClasses = async () => {
       try {

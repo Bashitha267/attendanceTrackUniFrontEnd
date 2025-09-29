@@ -127,6 +127,7 @@ const StudentDashboard = () => {
                     ]);
 
                     setEnrolledSubjects(enrolledRes.data.success ? enrolledRes.data.subjects : []);
+                    console.log(enrolledRes.data.subjects)
                     setAllAvailableSubjects(allSubjectsRes.data.success ? allSubjectsRes.data.subjects : []);
                 }
             } catch (err) {
@@ -275,7 +276,7 @@ const StudentDashboard = () => {
             {subjectsToRender.length === 0 && !loading && (<div className="text-center text-gray-500 py-10">No subjects match the current filters.</div>)}
             <div className="grid gap-6">
                 {subjectsToRender.map((subject) => (
-                    <div key={subject._id} className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl
+                    <div key={subject._id} className=" rounded-lg shadow-lg p-6 hover:shadow-xl 
 hover:scale-105
 transition-transform transition-shadow duration-300 ">
                         <div className="flex items-center justify-between mb-4">
@@ -288,14 +289,14 @@ transition-transform transition-shadow duration-300 ">
                             {isEnrollMode ? (
                                 <button onClick={() => onEnrollClick(subject)} className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">Enroll</button>
                             ) : (
-                                <div className="text-right"><div className="text-sm text-gray-550">Attendance</div></div>
+                                <div className="text-right"><div className="text-2xl text-gray-550 text-pink-800 font-bold mr-2">{(subject.attendedClasses/subject.totalClasses)*100||0}%</div></div>
                             )}
                         </div>
                         {!isEnrollMode && (
                             <div className="grid grid-cols-3 gap-3 mt-4">
-                                <div className="text-center p-3 bg-green-50 rounded-lg"><CheckCircle className="text-green-600 mx-auto mb-1" size={30} /><div className="text-xs text-gray-800">Present</div></div>
-                                <div className="text-center p-3 bg-red-50 rounded-lg"><XCircle className="text-red-600 mx-auto mb-1" size={30} /><div className="text-xs text-gray-800">Absent</div></div>
-                                <div className="text-center p-3 bg-blue-50 rounded-lg"><Clock className="text-blue-600 mx-auto mb-1" size={30} /><div className="text-xs text-gray-800">Total</div></div>
+                                <div className="text-center p-3 bg-green-50 rounded-lg"><CheckCircle className="text-green-600 mx-auto mb-1" size={30} /><div className="text-xs text-gray-800">Present:{subject.attendedClasses}</div></div>
+                                <div className="text-center p-3 bg-red-50 rounded-lg"><XCircle className="text-red-600 mx-auto mb-1" size={30} /><div className="text-xs text-gray-800">Absent:{subject.totalClasses-subject.attendedClasses}</div></div>
+                                <div className="text-center p-3 bg-blue-50 rounded-lg"><Clock className="text-blue-600 mx-auto mb-1" size={30} /><div className="text-xs text-gray-800">Total:{subject.totalClasses}</div></div>
                             </div>
                         )}
                     </div>
