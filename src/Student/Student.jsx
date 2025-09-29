@@ -276,12 +276,12 @@ const StudentDashboard = () => {
             {subjectsToRender.length === 0 && !loading && (<div className="text-center text-gray-500 py-10">No subjects match the current filters.</div>)}
             <div className="grid gap-6">
                 {subjectsToRender.map((subject) => (
-                    <div key={subject._id} className=" rounded-lg shadow-lg p-6 hover:shadow-xl 
-hover:scale-105
-transition-transform transition-shadow duration-300 ">
+                    <div key={subject._id} className={` rounded-lg shadow-lg p-6 hover:shadow-xl hover:bg-gray-100 
+
+ duration-300 ${Math.round((subject.attendedClasses / subject.totalClasses) * 100)<80 ? "border-1 border-red-500" :"border-0"}`}>
                         <div className="flex items-center justify-between mb-4">
                             <div>
-                                <h3 className="text-lg font-semibold text-green-500">{subject.name}</h3>
+                                <h3 className="text-lg font-semibold text-green-600">{subject.name}</h3>
                                 <p className="text-sm text-gray-600">{`Batch: ${subject.batchYear} | Year: ${subject.year} | Semester: ${subject.semester}`}</p>
                                 <p className="text-gray-600 mt-1">Subject Code: {subject.subjectCode}</p>
                                 <p className="text-gray-600">Lecturer ID: {subject.lecturerId}</p>
@@ -289,14 +289,14 @@ transition-transform transition-shadow duration-300 ">
                             {isEnrollMode ? (
                                 <button onClick={() => onEnrollClick(subject)} className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">Enroll</button>
                             ) : (
-                                <div className="text-right"><div className="text-2xl text-gray-550 text-pink-800 font-bold mr-2">{(subject.attendedClasses/subject.totalClasses)*100||0}%</div></div>
+                                <div className="text-right"><div className={`text-2xl text-gray-550 text-pink-800 font-bold mr-2`}> {Math.round((subject.attendedClasses / subject.totalClasses) * 100) || 0}%</div></div>
                             )}
                         </div>
                         {!isEnrollMode && (
                             <div className="grid grid-cols-3 gap-3 mt-4">
-                                <div className="text-center p-3 bg-green-50 rounded-lg"><CheckCircle className="text-green-600 mx-auto mb-1" size={30} /><div className="text-xs text-gray-800">Present:{subject.attendedClasses}</div></div>
-                                <div className="text-center p-3 bg-red-50 rounded-lg"><XCircle className="text-red-600 mx-auto mb-1" size={30} /><div className="text-xs text-gray-800">Absent:{subject.totalClasses-subject.attendedClasses}</div></div>
-                                <div className="text-center p-3 bg-blue-50 rounded-lg"><Clock className="text-blue-600 mx-auto mb-1" size={30} /><div className="text-xs text-gray-800">Total:{subject.totalClasses}</div></div>
+                                <div className="text-center p-3 bg-green-100 rounded-lg"><CheckCircle className="text-green-600 mx-auto mb-1" size={30} /><div className="text-md text-green-900 font-semibold">Present:{subject.attendedClasses}</div></div>
+                                <div className="text-center p-3 bg-red-100 rounded-lg"><XCircle className="text-red-600 mx-auto mb-1" size={30} /><div className="text-md text-red-900 font-semibold">Absent:{subject.totalClasses-subject.attendedClasses}</div></div>
+                                <div className="text-center p-3 bg-blue-100 rounded-lg"><Clock className="text-blue-600 mx-auto mb-1" size={30} /><div className="text-md text-blue-900 font-semibold">Total:{subject.totalClasses}</div></div>
                             </div>
                         )}
                     </div>

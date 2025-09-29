@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Calendar, Check, ClipboardList, Loader2Icon, Menu, Plus, PlusIcon, QrCode, Trash2, Users, X } from 'lucide-react';
+import { Calendar, Check, ClipboardList, Edit2, Loader2Icon, Menu, Plus, PlusIcon, QrCode, Trash2, Users, X } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { useEffect, useState } from 'react';
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
@@ -8,7 +8,6 @@ import Header from '../Layout/Header';
 const RegistrarDashboard = () => {
   const [activeTab, setActiveTab] = useState('mark-register');
   const [addClass, setAddClass] = useState(false);
-  const [data, setData] = useState("Not Found");
   const [allClasses, setAllClasses] = useState([]);
   const [isSubmiting, setIsSubmiting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState({ message: "", success: false });
@@ -268,7 +267,30 @@ const RegistrarDashboard = () => {
       setScanning(false);
     }
   };
-
+//delete method
+const deleteClass =async (id)=>{
+  try{
+if(!id){
+    setSubmitSuccess("Id Required")
+  }
+  const res=await axios.delete(`https://attendance-uni-backend.vercel.app/class/deletebyid/${id}`)
+  if(res.data.success){
+     setSubmitSuccess({ success: true, message: "class Deleted Successfully" });
+     setTimeout(() => {
+      setSubmitSuccess({ message: "", success: false });
+    }, 3000);
+    return
+  }
+    setSubmitSuccess({ success: false, message: "Cannot delete Class" });
+ setTimeout(() => {
+        setSubmitSuccess({ message: "", success: false });
+      }, 3000);
+      return;
+  }catch(e){
+    console.log(e)
+  }
+  
+}
   const renderContent = () => {
     switch (activeTab) {
       case 'mark-register':
@@ -549,23 +571,26 @@ const RegistrarDashboard = () => {
               </ol>
             ) : (
               <p className="text-gray-400 italic">No students have attended this class yet.</p>
+              
             )}
-          </div>
-          <div className='flex flex-row gap-4 lg:justify-end justify-center '>
-            <div className='flex flex-row gap-2 bg-red-600 hover:bg-red-800 text-white py-2 items-center px-3 rounded-2xl ' >Delete  <Trash2></Trash2></div>
+               <div className='flex flex-row gap-4 lg:justify-end justify-center '>
+            <div className='flex flex-row gap-2 bg-red-600 hover:bg-red-800 text-white py-2 items-center px-3 rounded-2xl ' >Delete  <Trash2 onClick={()=>{
+              deleteClass(selectedClass._id)
+            }}></Trash2></div>
             <div className='flex flex-row gap-2 bg-green-600 hover:bg-green-800 py-2 px-3 rounded-2xl items-center text-white' onClick={updateClass}>Complete   <Check></Check></div>
           </div>
+          </div>
+       
         </div>
       );
 
-      // ✅ CORRECTED: This entire case block is updated for filtering
       case 'reports':
         const filteredReportClasses = allClasses.filter(cls => {
-            if (!cls || !cls.subjectID) return false; // Defensive check
+            if (!cls || !cls.subjectID) return false;
             const matchesDate = inputDate ? cls.date.slice(0, 10) === inputDate : true;
             const matchesYear = inputYear ? cls.subjectID.year === Number(inputYear) : true;
             return matchesDate && matchesYear;
-        }).sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by most recent
+        }).sort((a, b) => new Date(b.date) - new Date(a.date)); 
 
         return (
             <div className="space-y-6">
@@ -580,7 +605,7 @@ const RegistrarDashboard = () => {
                                 id="class-date"
                                 value={inputDate}
                                 onChange={(e) => setInputDate(e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-none"
+                                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-600 focus:outline-none w-fit"
                             />
                         </div>
                         <div className="flex flex-col sm:flex-row items-center gap-4 pb-4">
@@ -623,12 +648,27 @@ const RegistrarDashboard = () => {
                                                 })}
                                             </p>
                                         </div>
-                                        <div className="text-left lg:text-right ">
+                                        <div className='flex lg:flex-row lg:gap-20 w-full items-center flex-row-reverse justify-between  lg:justify-end'>
+                                          <div className='flex flex-row gap-3 '>
+  <div><Edit2 className='text-green-500 hover:text-green-800' size={24} onClick={()=>{
+    setSelectedClass(classes)
+    checkPinCode()
+
+  }}></Edit2></div>
+                                          <div><Trash2 size={24} className='text-red-500 hover:text-red-900' onClick={()=>{
+                                            deleteClass(classes._id)
+                                          }}></Trash2></div>
+                                          </div>
+                                        
+                                          
+    <div className="text-left lg:text-right ">
                                             <p className="text-sm mb-1">Registrar: {classes.registor.name}</p>
                                             <p className={`text-xs font-semibold px-3 py-1 rounded-full inline-block mt-1 ${classes.isCompleted ? 'bg-green-600' : 'bg-pink-600'} text-white`}>
                                                 {classes.studentsAttended?.length || 0} Students
                                             </p>
                                         </div>
+                                        </div>
+                                    
                                     </div>
                                 </div>
                             ))
