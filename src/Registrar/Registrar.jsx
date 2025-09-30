@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Calendar, Check, ClipboardList, Edit2, Loader2Icon, Menu, Plus, PlusIcon, QrCode, Trash2, Users, X } from 'lucide-react';
+import { Check, ClipboardList, Database, Edit2, Loader2, Loader2Icon, Menu, Plus, PlusIcon, QrCode, Trash2, Users, X } from 'lucide-react';
 import { QRCodeCanvas } from 'qrcode.react';
 import { useEffect, useState } from 'react';
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
@@ -14,7 +14,7 @@ const RegistrarDashboard = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [ongoingClasses, setOngoingClasses] = useState([]);
   const [inputCode, setInputCode] = useState('');
-
+  const[isCompleting,setIsCompleting]=useState(false)
   const [classesLoading, setClassesLoading] = useState(false);
   const [profileData, setProfileData] = useState(null);
   const [selectedClass, setSelectedClass] = useState("");
@@ -30,11 +30,13 @@ const RegistrarDashboard = () => {
 
   const updateClass = async () => {
     try {
+      setIsCompleting(true)
       const response = await axios.patch(
         `https://attendance-uni-backend.vercel.app/class/setComplete/${selectedClass._id}`
       );
 
       if (response.data.success) {
+        setIsCompleting(false)
         setSubmitSuccess({ success: true, message: "Lecture Marked as Complete" });
         setTimeout(() => {
           setSubmitSuccess({ success: false, message: "" });
@@ -42,6 +44,7 @@ const RegistrarDashboard = () => {
         setActiveTab("mark-register");
         setSelectedClass("");
       } else {
+        setIsCompleting(false)
         setSubmitSuccess({ success: false, message: response.data.message });
         setTimeout(() => {
           setSubmitSuccess({ success: false, message: "" });
@@ -49,18 +52,21 @@ const RegistrarDashboard = () => {
         console.log("Update failed:");
       }
     } catch (error) {
+      setIsCompleting(false)
       console.error("Error updating student:", error);
     }
   }
 
   const handleAddAttendance = async () => {
     try {
+      setIsSubmiting(true)
       const response = await axios.post(
         `https://attendance-uni-backend.vercel.app/class/addattendance/${selectedClass._id}`,
         { "studentId": userData._id }
       );
 
       if (response.data.success) {
+        setIsSubmiting(false)
         setSubmitSuccess({ success: true, message: "Student Added Successfully" });
         setSelectedClass(prevClass => ({
           ...prevClass,
@@ -76,11 +82,13 @@ const RegistrarDashboard = () => {
         }, 3000);
       } else {
         setSubmitSuccess({ success: false, message: response.data.message });
+        setIsSubmiting(false)
         setTimeout(() => {
           setSubmitSuccess({ success: false, message: "" });
         }, 3000);
       }
     } catch (error) {
+      setIsSubmiting(false)
       setSubmitSuccess({ success: false, message: "Server Error" });
       setTimeout(() => {
         setSubmitSuccess({ success: false, message: "" });
@@ -120,7 +128,7 @@ const RegistrarDashboard = () => {
       }
     };
     fetchAllClasses();
-  }, [addClass, submitSuccess]);
+  }, [addClass, submitSuccess,isCompleting]);
 
   // State for courses and filtering
   const [courses, setCourses] = useState([]);
@@ -154,7 +162,7 @@ const RegistrarDashboard = () => {
     subjectID: "",
     lecturer: "",
     date: "",
-    registor: "",
+    registor: profileData ?profileData.reg_no :"",
     pinCode: ""
   });
 
@@ -190,7 +198,7 @@ const RegistrarDashboard = () => {
       }
     };
     fetchClasses();
-  }, [activeTab, submitSuccess]);
+  }, [addClass]);
 
   useEffect(() => {
     const filtered = courses.filter((course) => {
@@ -222,6 +230,7 @@ const RegistrarDashboard = () => {
       const res = await axios.post("https://attendance-uni-backend.vercel.app/class/addclass", payload);
       if (res.data.success) {
         setSubmitSuccess({ success: true, message: res.data.message || "Class added successfully!" });
+        setActiveTab("mark-register")
         setFormDataClass({ startTime: "", endTime: "", subjectID: "", lecturer: "", date: "", registor: "", pinCode: "" });
         setAddClass(false);
       } else {
@@ -273,21 +282,29 @@ const deleteClass =async (id)=>{
 if(!id){
     setSubmitSuccess("Id Required")
   }
+  setIsSubmiting(true)
   const res=await axios.delete(`https://attendance-uni-backend.vercel.app/class/deletebyid/${id}`)
   if(res.data.success){
      setSubmitSuccess({ success: true, message: "class Deleted Successfully" });
+     setActiveTab("mark-register")
+     setSelectedClass("")
+     setIsSubmiting(false)
      setTimeout(() => {
       setSubmitSuccess({ message: "", success: false });
     }, 3000);
     return
   }
     setSubmitSuccess({ success: false, message: "Cannot delete Class" });
+     setIsSubmiting(false)
+
  setTimeout(() => {
         setSubmitSuccess({ message: "", success: false });
       }, 3000);
       return;
   }catch(e){
     console.log(e)
+     setIsSubmiting(false)
+
   }
   
 }
@@ -429,7 +446,7 @@ if(!id){
               <div className='flex flex-row justify-between items-center mb-6'>
                 <h3 className="text-xl font-semibold text-green-900">Active Lectures</h3>
               </div>
-              <div className="space-y-4 max-h-64 overflow-y-auto pr-2">
+              <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
                 {classesLoading ? (
                   <div className="flex justify-center mt-14"><Loader2Icon size={40} className="animate-spin text-pink-700" /></div>
                 ) : ongoingClasses.length > 0 ? (
@@ -543,10 +560,10 @@ if(!id){
                     <button onClick={() => {
                       setGotId("")
                     }} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors">
-                      Cancel
+                     Cancel
                     </button>
-                    <button onClick={handleAddAttendance} className="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors">
-                      Add
+                    <button onClick={handleAddAttendance} className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-700 transition-colors">
+                      {isSubmiting ? <Loader2 className='animate-spin text-white'></Loader2> :<div className='flex gap-2'> <span>Add</span></div> }
                     </button>
                   </div>
                 </div>)}
@@ -569,15 +586,17 @@ if(!id){
                   </li>
                 ))}
               </ol>
+              
             ) : (
-              <p className="text-gray-400 italic">No students have attended this class yet.</p>
+              <p className="text-gray-500 italic">No students have attended this class yet.</p>
               
             )}
-               <div className='flex flex-row gap-4 lg:justify-end justify-center '>
-            <div className='flex flex-row gap-2 bg-red-600 hover:bg-red-800 text-white py-2 items-center px-3 rounded-2xl ' >Delete  <Trash2 onClick={()=>{
+               <div className='flex flex-row gap-4 lg:justify-end justify-center mt-2 mb-2 '>
+            <div className='flex flex-row gap-2 bg-red-600 hover:bg-red-800 text-white py-2 items-center px-3 rounded-2xl ' onClick={()=>{
+              
               deleteClass(selectedClass._id)
-            }}></Trash2></div>
-            <div className='flex flex-row gap-2 bg-green-600 hover:bg-green-800 py-2 px-3 rounded-2xl items-center text-white' onClick={updateClass}>Complete   <Check></Check></div>
+            }} > { isSubmiting ?<Loader2 className='text-white animate-spin '></Loader2>:<Trash2></Trash2> } </div>
+            <div className='flex flex-row gap-2 bg-green-600 hover:bg-green-800 py-2 px-3 rounded-2xl items-center text-white' onClick={updateClass}>{isCompleting ? <Loader2 className='text-white animate-spin '></Loader2> :<Check className='text-white'></Check>}  </div>
           </div>
           </div>
        
@@ -637,7 +656,11 @@ if(!id){
                                 >
                                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                         <div>
-                                            <h3 className="text-lg font-semibold">{classes.subjectID.name}</h3>
+                                          <div className='flex flex-row items-center gap-5'>
+                                            <div className="text-lg font-semibold">{classes.subjectID.name}</div>
+                                             {/* <div className=' bg-green-500 rounded-2xl px-3 text-white text-md'>Active</div> */}
+                                          </div>
+                                            
                                             <p className="font-mono text-sm ">{classes.lecturer.name}</p>
                                             <p className="text-sm text-gray-700">{classes.startTime}:00 - {classes.endTime}:00</p>
                                             <p className='text-sm text-gray-700'>
@@ -648,22 +671,22 @@ if(!id){
                                                 })}
                                             </p>
                                         </div>
-                                        <div className='flex lg:flex-row lg:gap-20 w-full items-center flex-row-reverse justify-between  lg:justify-end'>
+                                        <div className='flex lg:flex-row lg:gap-20 w-fit items-center flex-row-reverse justify-between  lg:justify-end'>
                                           <div className='flex flex-row gap-3 '>
   <div><Edit2 className='text-green-500 hover:text-green-800' size={24} onClick={()=>{
     setSelectedClass(classes)
     checkPinCode()
 
   }}></Edit2></div>
-                                          <div><Trash2 size={24} className='text-red-500 hover:text-red-900' onClick={()=>{
+                                          <div onClick={()=>{
                                             deleteClass(classes._id)
-                                          }}></Trash2></div>
+                                          }}>{isSubmiting ? <Loader2 size={24} className='text-white anima'></Loader2>:<Trash2 size={24} className='text-red-500 hover:text-red-900' ></Trash2>}</div>
                                           </div>
                                         
                                           
     <div className="text-left lg:text-right ">
                                             <p className="text-sm mb-1">Registrar: {classes.registor.name}</p>
-                                            <p className={`text-xs font-semibold px-3 py-1 rounded-full inline-block mt-1 ${classes.isCompleted ? 'bg-green-600' : 'bg-pink-600'} text-white`}>
+                                            <p className={`text-xs font-semibold px-3 py-1 rounded-full inline-block mt-1  bg-pink-600 text-white`}>
                                                 {classes.studentsAttended?.length || 0} Students
                                             </p>
                                         </div>
@@ -724,8 +747,8 @@ if(!id){
 
   const tabs = [
     { id: 'mark-register', label: 'Classes', icon: ClipboardList },
-    { id: 'records', label: 'Records', icon: Calendar },
-    { id: 'reports', label: 'Reports', icon: Users },
+    // { id: 'records', label: 'Records', icon: Calendar },
+    { id: 'reports', label: 'Reports', icon: Database},
     { id: 'profile', label: 'Profile', icon: Users },
   ];
 
@@ -762,6 +785,7 @@ if(!id){
                     key={tab.id}
                     onClick={() => {
                       setActiveTab(tab.id);
+                      setSelectedClass("")
                       setMobileMenuOpen(false);
                     }}
                     className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${activeTab === tab.id
