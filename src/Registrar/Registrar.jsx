@@ -552,7 +552,7 @@ if(!id){
                 {!userLoading && (<div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md flex flex-col border-2 border-pink-800">
                   <h2 className="text-xl text-center font-semibold mb-3 text-green-900 ">Student Information</h2>
                   <div className="  justify-center flex flex-row items-center mb-2 mt-2">
-                    <div className='bg-pink-300 w-32 h-32'></div>
+                    <div><img src={userData.image} className='w-32 h-32 object-cover'></img></div>
                   </div>
                   <h3 className='text-lg font-semibold mb-2 text-gray-800'>Student Name: {userData.name || ""}</h3>
                   <p className='text-lg font-semibold mb-2 text-gray-800'>Registration Number: {userData.reg_no || ""}</p>

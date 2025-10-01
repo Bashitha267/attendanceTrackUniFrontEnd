@@ -2,7 +2,6 @@ import axios from 'axios';
 import { BookOpen, CheckCircle, Clock, Loader2, Menu, PlusCircle, QrCode, X, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import Header from "../Layout/Header";
-import student from "../assets/graduated.png";
 
 import { QRCodeCanvas } from 'qrcode.react';
 
@@ -222,7 +221,7 @@ const StudentDashboard = () => {
                 <div className="bg-white rounded-lg shadow-sm p-6">
                     <h3 className="text-lg font-semibold text-green-900 mb-6">Student Information</h3>
                     <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-8">
-                        <img src={profileData.img || student} alt="Profile" className="w-32 h-32 rounded-full object-cover border-4 border-gray-200" />
+                        <img src={profileData.avatar } alt="Profile" className="w-32 h-36 rounded-full object-cover  " />
                         <div className="flex-1">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div><label className="block text-sm font-medium text-gray-900">Name</label><p className="text-gray-700">{profileData.name}</p></div>

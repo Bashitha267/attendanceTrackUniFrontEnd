@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BookOpenText, ClipboardList, GraduationCap, LoaderCircle } from "lucide-react";
+import { BookOpenText, ClipboardList, GraduationCap, LoaderCircle, Plus } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -21,11 +21,42 @@ const RegisterPage = () => {
     role: "student",
     gender: "",
     dob: "",
+    image:"",
     contact_no: "",
   });
 
  
-
+  const handleImageChange = async (e) => {
+    if (!e.target.files) return;
+  
+    const files = Array.from(e.target.files);
+    const formdata = new FormData();
+  
+    files.forEach((file) => formdata.append("images", file));
+  
+    try {
+      const res = await fetch("https://attendance-uni-backend.vercel.app/users/addphoto", {
+        method: "POST",
+        body: formdata,
+      });
+  
+      const data = await res.json();
+      if (data.success && data.urls) {
+        setFormData(prev => ({
+          ...prev,
+          image: data.urls[0]
+          
+        }));
+      } else {
+        console.error("Upload failed:", data.error);
+        alert("Image upload failed");
+      }
+    } catch (err) {
+      console.error("Error uploading images:", err);
+      alert("Error uploading images");
+    }
+  };
+  
   const roles = [
     { role: "student", icon: GraduationCap },
     { role: "lecturer", icon: BookOpenText },
@@ -158,6 +189,7 @@ if (res.data.success === true) {
               <InputField label="Email" name="email" type="email" value={formData.email} onChange={handleInputChange} />
               <InputField label="Contact No" name="contact_no" value={formData.contact_no} onChange={handleInputChange} />
               <InputField label="Date Of Birth" name="dob" type="date" value={formData.dob} onChange={handleInputChange} />
+              
               <div>
                 <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
   Gender
@@ -177,8 +209,49 @@ if (res.data.success === true) {
               
               <InputField label="Password" name="password" type={showPassword ? "text" : "password"} value={formData.password} onChange={handleInputChange} />
               <InputField label="Confirm Password" name="confirmPassword" type={showPassword ? "text" : "password"} value={formData.confirmPassword} onChange={handleInputChange} />
+               <div className="bg-white p-4 rounded-lg shadow border border-gray-200 lg:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Profile Pic *
+              </label>
+              {!formData.image && (
+                <div className="flex items-center justify-center w-full ">
+                  <label
+                    htmlFor="file-upload"
+                    className="cursor-pointer flex flex-col items-center justify-center border-2 border-dashed border-purple-500 rounded-lg p-6 w-full hover:bg-purple-100 transition-all duration-200"
+                  >
+                    <Plus  size={34} className='font-bold text-purple-500' />
+                    <span className="text-purple-500 font-medium">Click to add an image</span>
+                    <input
+                      id="file-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              )}
+              {formData.image && (
+                <div className="mt-4">
+                  <div className="relative w-48 h-48">
+                    <img
+                      src={formData.image}
+                      alt="Project preview"
+                      className="w-full h-full object-cover rounded-lg border border-gray-200"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, image: '' }))}
+                      className="absolute top-1 right-1 bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-purple-600 transition"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-
+            </div>
+    
             <div className="flex flex-col mt-1">
               <label className="mb-1 font-semibold text-gray-600">Role</label>
               <div className="flex flex-wrap gap-2">
