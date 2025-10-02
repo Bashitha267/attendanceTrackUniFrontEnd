@@ -55,12 +55,14 @@ export const AuthProvider = ({ children }) => {
         avatar: decodedToken.image,
         reg_no:decodedToken.reg_no
       };
+      // console.log(userPayload.avatar)
 
       setAuthState({
         user: userPayload,
         isAuthenticated: true,
         loading: false,
         error: null,
+        
       });
 
       localStorage.setItem("user", JSON.stringify(userPayload));
@@ -72,6 +74,7 @@ export const AuthProvider = ({ children }) => {
       setAuthState({
         user: null,
         isAuthenticated: false,
+        
         loading: false,
         error: error.message, // Store the error message in the state
       });
