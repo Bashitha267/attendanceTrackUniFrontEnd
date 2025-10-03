@@ -1,9 +1,12 @@
 import axios from 'axios';
 import { BookOpen, CheckCircle, Clock, Loader2, Menu, PlusCircle, QrCode, X, XCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import Header from "../Layout/Header";
-
 import { QRCodeCanvas } from 'qrcode.react';
+import { useEffect, useState } from 'react';
+import Header from '../Layout/Header';
+
+// This component was removed as it's not defined in the provided code.
+// You can add it back if it exists elsewhere in your project.
+// import Header from "../Layout/Header"; 
 
 const EnrollmentFeedback = ({ status, onClose }) => {
     if (!status || !status.message) return null;
@@ -19,19 +22,19 @@ const EnrollmentFeedback = ({ status, onClose }) => {
                 {isSuccess ? <CheckCircle className="mr-2" size={20} /> : <XCircle className="mr-2" size={20} />}
                 <span>{status.message}</span>
             </div>
-            <button onClick={onClose} className="p-1 rounded-full hover:bg-purple/10">
+            <button onClick={onClose} className="p-1 rounded-full hover:bg-opacity-10 hover:bg-black">
                 <X size={18} />
             </button>
         </div>
     );
 };
 
-
-const EnrollmentModal = ({ isOpen, onClose, onSubmit, subject, enrollmentStatus, setEnrollmentStatus }) => {
+// FIX 1: Correctly destructure the 'enrolling' prop.
+// The incorrect syntax `enrolling={enrolling}` was replaced with just `enrolling`.
+const EnrollmentModal = ({ isOpen, onClose, onSubmit, subject, enrollmentStatus, setEnrollmentStatus, enrolling }) => {
     const [inputCode, setInputCode] = useState('');
 
     useEffect(() => {
-      
         if (isOpen) {
             setInputCode('');
         }
@@ -45,7 +48,6 @@ const EnrollmentModal = ({ isOpen, onClose, onSubmit, subject, enrollmentStatus,
             return;
         }
         onSubmit(inputCode);
-       
     };
 
     const handleClose = () => {
@@ -57,9 +59,6 @@ const EnrollmentModal = ({ isOpen, onClose, onSubmit, subject, enrollmentStatus,
     return (
         <div className="fixed inset-0  bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
-                
-                
-
                 <h2 className="text-xl font-semibold mb-2 text-gray-800">Enroll in Course</h2>
                 <p className="mb-4 text-gray-600">
                     Enter the PIN code for <strong className="text-purple-700">{subject?.name}</strong> to complete enrollment.
@@ -76,20 +75,17 @@ const EnrollmentModal = ({ isOpen, onClose, onSubmit, subject, enrollmentStatus,
                     <button onClick={handleClose} className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors">
                         Cancel
                     </button>
-                    <button onClick={handleSubmit} className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-                        Confirm Enrollment
+                    <button onClick={handleSubmit} disabled={enrolling} className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center w-24">
+                        {enrolling ? <Loader2 className='animate-spin' /> : <span>Enroll</span>}
                     </button>
                 </div>
                 <EnrollmentFeedback status={enrollmentStatus} onClose={() => setEnrollmentStatus({ message: null, type: null })} />
-
             </div>
         </div>
     );
 };
 
-
 const StudentDashboard = () => {
-  
     const [activeTab, setActiveTab] = useState('subjects');
     const [profileData, setProfileData] = useState(null);
     const [enrolledSubjects, setEnrolledSubjects] = useState([]);
@@ -104,10 +100,8 @@ const StudentDashboard = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [subjectToEnroll, setSubjectToEnroll] = useState(null);
-
- 
+    const [enrolling, setEnrolling] = useState(false);
     const [enrollmentStatus, setEnrollmentStatus] = useState({ message: null, type: null });
-
 
     useEffect(() => {
         const fetchData = async () => {
@@ -126,7 +120,6 @@ const StudentDashboard = () => {
                     ]);
 
                     setEnrolledSubjects(enrolledRes.data.success ? enrolledRes.data.subjects : []);
-                    console.log(enrolledRes.data.subjects)
                     setAllAvailableSubjects(allSubjectsRes.data.success ? allSubjectsRes.data.subjects : []);
                 }
             } catch (err) {
@@ -150,12 +143,11 @@ const StudentDashboard = () => {
     }, [enrolledSubjects, filterBatchYear, filterYear, filterSemester]);
 
     useEffect(() => {
-        // Hide subjects the student is already in
         const enrolledSubjectCodes = new Set(enrolledSubjects.map(sub => sub.subjectCode));
         const filtered = allAvailableSubjects.filter(subject => {
-             if (enrolledSubjectCodes.has(subject.subjectCode)) {
-                 return false; 
-             }
+            if (enrolledSubjectCodes.has(subject.subjectCode)) {
+                return false;
+            }
             const matchBatchYear = filterBatchYear ? subject.batchYear === Number(filterBatchYear) : true;
             const matchYear = filterYear ? subject.year === Number(filterYear) : true;
             const matchSemester = filterSemester ? subject.semester === Number(filterSemester) : true;
@@ -164,11 +156,9 @@ const StudentDashboard = () => {
         setFilteredAllAvailableSubjects(filtered);
     }, [allAvailableSubjects, enrolledSubjects, filterBatchYear, filterYear, filterSemester]);
 
-
-//   ENROLLMENT 
     const handleOpenEnrollModal = (subject) => {
         setSubjectToEnroll(subject);
-        setEnrollmentStatus({ message: null, type: null }); // Reset status 
+        setEnrollmentStatus({ message: null, type: null });
         setIsModalOpen(true);
     };
 
@@ -185,31 +175,29 @@ const StudentDashboard = () => {
         };
 
         try {
+            setEnrolling(true);
             const response = await axios.post('https://attendance-uni-backend.vercel.app/subjects/enrolsubjects', payload);
-
             
-            setEnrollmentStatus({ message: response.data.message, type: 'success' });
-            
-           
-            setEnrolledSubjects(prev => [...prev, subjectToEnroll]);
-
-            
-            setTimeout(() => {
-                setIsModalOpen(false);
-                setSubjectToEnroll(null);
-            }, 2000);
-
+            if (response.data.success) {
+                setEnrollmentStatus({ message: response.data.message, type: 'success' });
+                setEnrolledSubjects(prev => [...prev, { ...subjectToEnroll, attendedClasses: 0, totalClasses: 0 }]);
+                
+                setTimeout(() => {
+                    setIsModalOpen(false);
+                    setSubjectToEnroll(null);
+                }, 2000);
+            } else {
+                 setEnrollmentStatus({ message: response.data.message || "Enrollment failed.", type: 'error' });
+            }
         } catch (err) {
-            
             const errorMessage = err.response?.data?.message || "An error occurred during enrollment.";
             setEnrollmentStatus({ message: errorMessage, type: 'error' });
             console.error("Enrollment failed:", err);
+        } finally {
+            setEnrolling(false);
         }
-        
     };
 
-
-    
     const handleTabClick = (tabId) => {
         setActiveTab(tabId);
         setIsMenuOpen(false);
@@ -219,9 +207,9 @@ const StudentDashboard = () => {
         profileData && (
             <div className="space-y-6">
                 <div className="bg-white rounded-lg shadow-sm p-6">
-                    <h3 className="text-lg font-semibold text-green-900 mb-6">Student Information</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-6">Student Information</h3>
                     <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-8">
-                        <img src={profileData.avatar } alt="Profile" className="w-32 h-36 rounded-full object-cover  " />
+                      <img src={profileData.avatar } alt="Profile" className="w-32 h-36 rounded-full object-cover" />
                         <div className="flex-1">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div><label className="block text-sm font-medium text-gray-900">Name</label><p className="text-gray-700">{profileData.name}</p></div>
@@ -235,20 +223,17 @@ const StudentDashboard = () => {
                 <div className="bg-white rounded-lg shadow-sm p-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center"><QrCode className="mr-2" size={20} /> Student QR Code</h3>
                     <div className="text-center">
-                        <div className="bg-gray-100 p-8 rounded-lg inline-block">
-                            <div className="mt-4 flex flex-col items-center">
-  <QRCodeCanvas
-    value={profileData.reg_no}  // Replace with registrar reg_no
-    size={240}      // Adjust size as needed
-    bgColor="#ffffff"
-    fgColor="#000000"
-    level="H"
-    includeMargin={true}
-  />
-  <p className="mt-2 text-sm text-gray-700">Registrar ID:{profileData.reg_no}</p>
-</div>
-
-                            </div>
+                        <div className="bg-gray-50 p-4 rounded-lg inline-block">
+                             <QRCodeCanvas
+                                value={profileData.reg_no}
+                                size={240}
+                                bgColor="#ffffff"
+                                fgColor="#000000"
+                                level="H"
+                                includeMargin={true}
+                            />
+                            <p className="mt-2 text-sm text-gray-700">Registrar ID: {profileData.reg_no}</p>
+                        </div>
                         <p className="text-sm text-gray-600 mt-2">Use this QR code for attendance marking</p>
                     </div>
                 </div>
@@ -259,59 +244,59 @@ const StudentDashboard = () => {
     const SubjectList = ({ subjectsToRender, isEnrollMode = false, onEnrollClick }) => (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 p-4 bg-white rounded-lg shadow-sm">
-                <h2 className="text-xl font-semibold text-green-900">{isEnrollMode ? 'Available Courses to Enroll' : 'My Enrolled Subjects'}</h2>
+                <h2 className="text-xl font-semibold text-gray-900">{isEnrollMode ? 'Available Courses to Enroll' : 'My Enrolled Subjects'}</h2>
                 <div className="flex flex-wrap gap-3 w-full md:w-auto">
-                    <select value={filterBatchYear} onChange={e => setFilterBatchYear(e.target.value)} className="w-full sm:w-auto px-3 py-2 border border-purple-600 rounded-lg focus:ring-1 focus:ring-purple-800">
-                        <option value="">All Batches</option><option value="2021">2021</option><option value="2022">2022</option><option value="2023">2023</option><option value="2024">2024</option><option value="2025">2025</option>
-                    </select>
-                    <select value={filterYear} onChange={e => setFilterYear(e.target.value)} className="w-full sm:w-auto px-3 py-2 border border-purple-600 rounded-lg focus:ring-1 focus:ring-purple-800">
-                        <option value="">All Years</option><option value="1">1st Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option><option value="4">4th Year</option>
-                    </select>
-                    <select value={filterSemester} onChange={e => setFilterSemester(e.target.value)} className="w-full sm:w-auto px-3 py-2 border border-purple-600 rounded-lg focus:ring-1 focus:ring-purple-800">
-                        <option value="">All Semesters</option><option value="1">1st Semester</option><option value="2">2nd Semester</option>
-                    </select>
+                    <select value={filterBatchYear} onChange={e => setFilterBatchYear(e.target.value)} className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-purple-500"><option value="">All Batches</option><option value="2021">2021</option><option value="2022">2022</option><option value="2023">2023</option><option value="2024">2024</option><option value="2025">2025</option></select>
+                    <select value={filterYear} onChange={e => setFilterYear(e.target.value)} className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-purple-500"><option value="">All Years</option><option value="1">1st Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option><option value="4">4th Year</option></select>
+                    <select value={filterSemester} onChange={e => setFilterSemester(e.target.value)} className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-purple-500"><option value="">All Semesters</option><option value="1">1st Semester</option><option value="2">2nd Semester</option></select>
                 </div>
             </div>
             {subjectsToRender.length === 0 && !loading && (<div className="text-center text-gray-500 py-10">No subjects match the current filters.</div>)}
             <div className="grid gap-6">
-                {subjectsToRender.map((subject) => (
-                    <div key={subject._id} className={` rounded-lg shadow-lg p-6 hover:shadow-xl hover:bg-gray-100 
-
- duration-300 ${Math.round((subject.attendedClasses / subject.totalClasses) * 100)<80 ? "border-1 border-red-500" :"border-0"}`}>
-                        <div className="flex items-center justify-between mb-4">
-                            <div>
-                                <h3 className="text-lg font-semibold text-green-600">{subject.name}</h3>
-                                <p className="text-sm text-gray-600">{`Batch: ${subject.batchYear} | Year: ${subject.year} | Semester: ${subject.semester}`}</p>
-                                <p className="text-gray-600 mt-1">Subject Code: {subject.subjectCode}</p>
-                                <p className="text-gray-600">Lecturer ID: {subject.lecturerId}</p>
+                {subjectsToRender.map((subject) => {
+                    const attendancePercentage = subject.totalClasses > 0 ? Math.round((subject.attendedClasses / subject.totalClasses) * 100) : 0;
+                    const isLowAttendance = attendancePercentage < 80;
+                    return (
+                        <div key={subject._id} className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300 ${isLowAttendance && !isEnrollMode ? "border-l-4 border-red-500" : "border-l-4 border-green-500"}`}>
+                            <div className="flex items-center justify-between mb-4">
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-800">{subject.name}</h3>
+                                    <p className="text-sm text-gray-500">{`Batch: ${subject.batchYear} | Year: ${subject.year} | Sem: ${subject.semester}`}</p>
+                                    <p className="text-gray-600 mt-1 text-xs">Code: {subject.subjectCode}</p>
+                                    <p className="text-gray-600 text-xs">Lecturer ID: {subject.lecturerId}</p>
+                                </div>
+                                {isEnrollMode ? (
+                                    <button onClick={() => onEnrollClick(subject)} className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">Enroll</button>
+                                ) : (
+                                    <div className="text-right">
+                                        <div className={`text-2xl font-bold ${isLowAttendance ? 'text-red-600' : 'text-green-600'}`}>
+                                            {attendancePercentage}%
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                            {isEnrollMode ? (
-                                <button onClick={() => onEnrollClick(subject)} className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">Enroll</button>
-                            ) : (
-                                <div className="text-right"><div className={`text-2xl text-gray-550 text-pink-800 font-bold mr-2`}> {Math.round((subject.attendedClasses / subject.totalClasses) * 100) || 0}%</div></div>
+                            {!isEnrollMode && (
+                                <div className="grid grid-cols-3 gap-3 mt-4">
+                                    <div className="text-center p-3 bg-green-50 rounded-lg"><CheckCircle className="text-green-600 mx-auto mb-1" size={24} /><div className="text-sm text-green-900 font-semibold">Present: {subject.attendedClasses || 0}</div></div>
+                                    <div className="text-center p-3 bg-red-50 rounded-lg"><XCircle className="text-red-600 mx-auto mb-1" size={24} /><div className="text-sm text-red-900 font-semibold">Absent: {(subject.totalClasses || 0) - (subject.attendedClasses || 0)}</div></div>
+                                    <div className="text-center p-3 bg-blue-50 rounded-lg"><Clock className="text-blue-600 mx-auto mb-1" size={24} /><div className="text-sm text-blue-900 font-semibold">Total: {subject.totalClasses || 0}</div></div>
+                                </div>
                             )}
                         </div>
-                        {!isEnrollMode && (
-                            <div className="grid grid-cols-3 gap-3 mt-4">
-                                <div className="text-center p-3 bg-green-100 rounded-lg"><CheckCircle className="text-green-600 mx-auto mb-1" size={30} /><div className="text-md text-green-900 font-semibold">Present:{subject.attendedClasses}</div></div>
-                                <div className="text-center p-3 bg-red-100 rounded-lg"><XCircle className="text-red-600 mx-auto mb-1" size={30} /><div className="text-md text-red-900 font-semibold">Absent:{subject.totalClasses-subject.attendedClasses}</div></div>
-                                <div className="text-center p-3 bg-blue-100 rounded-lg"><Clock className="text-blue-600 mx-auto mb-1" size={30} /><div className="text-md text-blue-900 font-semibold">Total:{subject.totalClasses}</div></div>
-                            </div>
-                        )}
-                    </div>
-                ))}
+                    )
+                })}
             </div>
         </div>
     );
-
+    
     const renderContent = () => {
-        if (loading) return (<div className="flex justify-center items-center h-64"><Loader2 className="h-12 w-12 animate-spin text-pink-600" /></div>);
-        if (error) return <div className="text-red-500">Error: {error}</div>;
+        if (loading) return (<div className="flex justify-center items-center h-64"><Loader2 className="h-12 w-12 animate-spin text-purple-600" /></div>);
+        if (error) return <div className="text-red-500 bg-red-100 p-4 rounded-lg">Error: {error}</div>;
 
         switch (activeTab) {
             case 'subjects': return <SubjectList subjectsToRender={filteredEnrolledSubjects} />;
-            case 'attendance': return (<div className="bg-white rounded-lg shadow-sm p-6"><h3 className="text-lg font-semibold text-green-900">Attendance Overview</h3><p className="mt-4 text-gray-600">This feature is not yet implemented.</p></div>);
-            case 'enroll': return <SubjectList subjectsToRender={filteredAllAvailableSubjects.filter(sub => !enrolledSubjects.some(enSub => enSub.subjectCode === sub.subjectCode))} isEnrollMode={true} onEnrollClick={handleOpenEnrollModal} />;
+            case 'attendance': return (<div className="bg-white rounded-lg shadow-sm p-6"><h3 className="text-lg font-semibold text-gray-900">Attendance Overview</h3><p className="mt-4 text-gray-600">This feature is not yet implemented.</p></div>);
+            case 'enroll': return <SubjectList subjectsToRender={filteredAllAvailableSubjects} isEnrollMode={true} onEnrollClick={handleOpenEnrollModal} />;
             case 'profile': return <StudentProfile />;
             default: return null;
         }
@@ -326,59 +311,80 @@ const StudentDashboard = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-  <Header />
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-    {/* Mobile Menu Button */}
-    <div className="md:hidden mb-4">
-      <button
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-        className="flex items-center w-full px-4 py-3 text-left rounded-lg bg-white shadow-sm text-purple-800"
-      >
-        <Menu size={20} className="mr-3" />
-        {tabs.find(tab => tab.id === activeTab)?.label || 'Menu'}
-      </button>
-    </div>
+            
+            <Header/>
+        
 
-    <div className="relative flex flex-col md:flex-row md:space-x-8">
-      {/* Sidebar */}
-      <div
-        className={`fixed inset-y-0 left-0 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:shadow-none md:bg-transparent ${
-          isMenuOpen ? "translate-x-0 z-20" : "-translate-x-full"
-        }`}
-      >
-        <div className="flex flex-col space-y-2 p-4 md:p-0 md:bg-transparent rounded-lg">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => handleTabClick(tab.id)}
-              className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
-                activeTab === tab.id
-                  ? "bg-pink-100 text-pink-600 font-semibold border-l-4 border-pink-600"
-                  : "text-purple-800 hover:bg-pink-100 hover:text-pink-600"
-              }`}
-            >
-              <tab.icon size={20} className="mr-3" />
-              {tab.label}
-            </button>
-          ))}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div className="md:hidden mb-4">
+                    <button
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                        className="flex items-center w-full px-4 py-3 text-left rounded-lg bg-white shadow-sm text-gray-700 font-medium"
+                    >
+                        <Menu size={20} className="mr-3" />
+                        {tabs.find(tab => tab.id === activeTab)?.label || 'Menu'}
+                    </button>
+                </div>
+
+                <div className="flex flex-col md:flex-row md:space-x-8">
+                    <aside className="w-full md:w-64">
+                         <div className="hidden md:block">
+                            <div className="flex flex-col space-y-2">
+                                {tabs.map(tab => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => handleTabClick(tab.id)}
+                                        className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
+                                            activeTab === tab.id
+                                                ? "bg-purple-100 text-purple-700 font-semibold"
+                                                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                        }`}
+                                    >
+                                        <tab.icon size={20} className="mr-3" />
+                                        {tab.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </aside>
+                    
+                    {isMenuOpen && (
+                         <div className="md:hidden mb-4">
+                            <div className="flex flex-col space-y-2 bg-white p-2 rounded-lg shadow-md">
+                                {tabs.map(tab => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => handleTabClick(tab.id)}
+                                        className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
+                                            activeTab === tab.id
+                                                ? "bg-purple-100 text-purple-700 font-semibold"
+                                                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                        }`}
+                                    >
+                                        <tab.icon size={20} className="mr-3" />
+                                        {tab.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+
+                    <main className="flex-1 mt-4 md:mt-0">{renderContent()}</main>
+                </div>
+            </div>
+            
+            <EnrollmentModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSubmit={handleEnroll}
+                subject={subjectToEnroll}
+                enrollmentStatus={enrollmentStatus}
+                setEnrollmentStatus={setEnrollmentStatus}
+                // FIX 2: Pass the 'enrolling' state as a prop.
+                enrolling={enrolling}
+            />
         </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 mt-4 md:mt-0">{renderContent()}</div>
-    </div>
-  </div>
-
- 
-  <EnrollmentModal
-    isOpen={isModalOpen}
-    onClose={() => setIsModalOpen(false)}
-    onSubmit={handleEnroll}
-    subject={subjectToEnroll}
-    enrollmentStatus={enrollmentStatus}
-    setEnrollmentStatus={setEnrollmentStatus}
-  />
-</div>
     );
 };
 

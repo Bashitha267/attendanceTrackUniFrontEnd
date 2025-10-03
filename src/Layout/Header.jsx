@@ -44,7 +44,7 @@ const Header = ({ title,requests }) => {
             
             <div className="flex items-center space-x-2">
               <img
-                src={profileData?.avatar || ''}
+                src={profileData?.avatar || "https://res.cloudinary.com/dnfbik3if/image/upload/v1759460909/user_1_noax6l.png"}
                 alt="Profile"
                 className="w-8 h-8 rounded-full object-cover "
               />

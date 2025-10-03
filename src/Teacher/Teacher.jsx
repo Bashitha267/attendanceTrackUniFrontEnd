@@ -112,7 +112,7 @@ const TeacherDashboard = () => {
                       {students.map((student, index) => (
                         <tr key={student} className="hover:bg-purple-50">
                           <td className="pl-4 py-4 whitespace-nowrap text-sm text-gray-900">{index + 1}</td>
-                          <td className=" whitespace-nowrap text-sm text-gray-900">{student}</td>
+                          <td className=" whitespace-nowrap text-sm text-gray-900 uppercase">{student}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -132,7 +132,7 @@ const TeacherDashboard = () => {
             <h3 className="text-lg font-semibold text-green-900 mb-6">Teacher Profile</h3>
             <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-6">
               <img
-              src=""
+              src={ user?.avatar||"https://res.cloudinary.com/dnfbik3if/image/upload/v1759460597/school_fjjtaf.png"}
                 alt="Profile"
                 className="w-32 h-32 rounded-full object-cover border-2 border-gray-400"
               />
