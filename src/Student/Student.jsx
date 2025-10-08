@@ -232,7 +232,7 @@ const StudentDashboard = () => {
                                 level="H"
                                 includeMargin={true}
                             />
-                            <p className="mt-2 text-sm text-gray-700">Registrar ID: {profileData.reg_no}</p>
+                            <p className="mt-2 text-sm text-gray-700">Student ID: {profileData.reg_no}</p>
                         </div>
                         <p className="text-sm text-gray-600 mt-2">Use this QR code for attendance marking</p>
                     </div>
