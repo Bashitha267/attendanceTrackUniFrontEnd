@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BookOpenText, ClipboardList, GraduationCap, LoaderCircle, Plus } from "lucide-react";
+import { BookOpenText, ClipboardList, GraduationCap, Loader2, LoaderCircle, Plus } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -11,7 +11,7 @@ const RegisterPage = () => {
   const[loading,setLoading]=useState(false)
   const [otp, setOtp] = useState(""); 
   const navigate = useNavigate();
-
+const [imguploading,setimguplading]=useState(false)
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -35,6 +35,7 @@ const RegisterPage = () => {
     files.forEach((file) => formdata.append("images", file));
   
     try {
+      setimguplading(true)
       const res = await fetch("https://attendance-uni-backend.vercel.app/users/addphoto", {
         method: "POST",
         body: formdata,
@@ -42,16 +43,19 @@ const RegisterPage = () => {
   
       const data = await res.json();
       if (data.success && data.urls) {
+        setimguplading(false)
         setFormData(prev => ({
           ...prev,
           image: data.urls[0]
           
         }));
       } else {
+        setimguplading(false)
         console.error("Upload failed:", data.error);
         alert("Image upload failed");
       }
     } catch (err) {
+      setimguplading(false)
       console.error("Error uploading images:", err);
       alert("Error uploading images");
     }
@@ -222,9 +226,11 @@ if (res.data.success === true) {
                   <label
                     htmlFor="file-upload"
                     className="cursor-pointer flex flex-col items-center justify-center border-2 border-dashed border-purple-500 rounded-lg p-6 w-full hover:bg-purple-100 transition-all duration-200"
-                  >
-                    <Plus  size={34} className='font-bold text-purple-500' />
-                    <span className="text-purple-500 font-medium">Click to add an image</span>
+                  >{imguploading ? <>
+                  <Loader2 size={34} className='font-bold text-purple-500 animate-spin' ></Loader2>
+                  </> : <> <Plus  size={34} className='font-bold text-purple-500' />
+                    <span className="text-purple-500 font-medium">Click to add an image</span></> }
+                   
                     <input
                       id="file-upload"
                       type="file"
