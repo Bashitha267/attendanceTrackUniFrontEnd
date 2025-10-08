@@ -104,6 +104,10 @@ const RegisterPage = () => {
       setErrMessage("Passwords do not match.");
       return;
     }
+    if (!formData.image) {
+    setErrMessage("Please upload a profile picture.");
+    return;
+  }
 
     // signup
 try {
@@ -227,6 +231,7 @@ if (res.data.success === true) {
                       accept="image/*"
                       onChange={handleImageChange}
                       className="hidden"
+                      
                     />
                   </label>
                 </div>
