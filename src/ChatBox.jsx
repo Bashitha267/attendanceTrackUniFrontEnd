@@ -2,6 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 
+// --- Icon Components ---
 const CloseIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -14,18 +15,27 @@ const SendIcon = () => (
   </svg>
 );
 
-
-const API_KEY = "AIzaSyAG2dC2-OVTNecpplh4lRJevU2_xdrTHEE"; 
+// --- Gemini AI Setup ---
+// IMPORTANT: The API key is now securely loaded from environment variables.
+const API_KEY = "AIzaSyAqoxTrIXOr5IUFQjHGsWXoOqRgqnqLO14";
 const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-001" });
+// UPDATED: Switched to the gemini-2.5-flash model
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-
+/**
+ * Creates a detailed prompt for the AI model, including context, rules, and history.
+ * @param {Array} history - The current chat history.
+ * @param {Array} users - Data about users.
+ * @param {Array} subjects - Data about subjects.
+ * @param {Array} developers - Data about the developers.
+ * @returns {string} The complete prompt for the AI.
+ */
 const createChatbotPrompt = (history, users, subjects, developers) => {
-    // This part remains the same. It formats the past conversation.
-    const formattedHistory = history.map(msg => `${msg.sender === 'user' ? 'User' : 'Bot'}: ${msg.text}`).join('\n');
+  // Formats the past conversation for the prompt.
+  const formattedHistory = history.map(msg => `${msg.sender === 'user' ? 'User' : 'Bot'}: ${msg.text}`).join('\n');
 
-    // The return statement contains the new, improved prompt.
-    return `You are "AttendBot", a helpful and intelligent AI assistant for an attendance management website named "Attendo".
+  // The detailed prompt with instructions and data context.
+  return `You are "AttendBot", a helpful and intelligent AI assistant for an attendance management website named "Attendo".
 
 Your primary goal is to answer user questions based *only* on the provided Data Context. You must be precise, helpful, and adhere to the following rules strictly.
 
@@ -53,7 +63,6 @@ Developers Info: ${JSON.stringify(developers, null, 2)}
 
 **Conversation History:**
 ${formattedHistory}
-User: ${history.length > 0 ? history[history.length - 1].text : ''}
 Bot:
 `;
 };
@@ -61,13 +70,13 @@ Bot:
 
 const ChatBox = ({ isOpen, isClose }) => {
   const [message, setMessage] = useState('');
-  const [chatHistory, setChatHistory] = useState([{sender:"bot",text:"Welcome to Attendo,How Can I help You Today."}]);
+  const [chatHistory, setChatHistory] = useState([{ sender: "bot", text: "Welcome to Attendo, How Can I help You Today." }]);
   const [isLoading, setIsLoading] = useState(false);
   const [users, setUsers] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const chatEndRef = useRef(null);
 
-  // Static data can be defined outside the render cycle.
+  // Static developer data
   const developers = useRef([
     { name: "HMN Bashitha", id: "2022/CSC/023" },
     { name: "Nipuna Diyaloga", id: "2022/CSC/017" },
@@ -81,7 +90,7 @@ const ChatBox = ({ isOpen, isClose }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Use Promise.all for concurrent requests
+        // Use Promise.all for concurrent data fetching
         const [usersRes, subjectsRes] = await Promise.all([
           axios.get('https://attendance-uni-backend.vercel.app/users/getusers'),
           axios.get('https://attendance-uni-backend.vercel.app/subjects/getsubjects')
@@ -91,16 +100,15 @@ const ChatBox = ({ isOpen, isClose }) => {
         setSubjects(subjectsRes.data.subjects || []);
       } catch (err) {
         console.error("Failed to fetch initial data:", err);
-        // Optionally, inform the user in the chat
         setChatHistory(prev => [...prev, { sender: 'bot', text: 'Sorry, I am having trouble connecting to my knowledge base.' }]);
       }
     };
     if (isOpen) {
-        fetchData();
+      fetchData();
     }
   }, [isOpen]);
 
-  // Scroll chat to bottom
+  // Effect to auto-scroll to the latest message
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatHistory]);
@@ -111,7 +119,6 @@ const ChatBox = ({ isOpen, isClose }) => {
     if (!message.trim() || isLoading) return;
 
     const userMessage = { sender: 'user', text: message };
-    // Create the next state of chat history immediately
     const newChatHistory = [...chatHistory, userMessage];
 
     setChatHistory(newChatHistory);
@@ -119,7 +126,7 @@ const ChatBox = ({ isOpen, isClose }) => {
     setIsLoading(true);
 
     try {
-      // Pass the updated history to the prompt function
+      // Create the full prompt with the most recent history
       const fullPrompt = createChatbotPrompt(newChatHistory, users, subjects, developers);
       const result = await model.generateContent(fullPrompt);
       const response = await result.response;
@@ -141,6 +148,7 @@ const ChatBox = ({ isOpen, isClose }) => {
     <div className={`z-50 fixed bottom-5 right-5 w-[90vw] max-w-md h-[70vh] max-h-[600px] bg-white rounded-xl shadow-2xl flex flex-col transition-all duration-300 ease-in-out
       ${isOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
 
+      {/* Header */}
       <div className="bg-purple-600 text-white p-4 flex justify-between items-center rounded-t-xl">
         <h3 className="text-lg font-semibold">AttendBot AI</h3>
         <button onClick={() => isClose(!isOpen)} className="hover:bg-purple-700 p-1 rounded-full transition-colors" aria-label="Close Chat">
@@ -148,7 +156,7 @@ const ChatBox = ({ isOpen, isClose }) => {
         </button>
       </div>
 
-
+      {/* Chat Area */}
       <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-gray-50">
         {chatHistory.map((msg, index) => (
           <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -159,18 +167,19 @@ const ChatBox = ({ isOpen, isClose }) => {
                   : "bg-gray-200 text-gray-800 rounded-bl-none"
                 }`}
             >
-              {/* Basic markdown-like formatting for newlines */}
+              {/* Render newlines in the message */}
               {msg.text.split('\n').map((line, i) => <p key={i}>{line}</p>)}
             </div>
           </div>
         ))}
+        {/* Loading Indicator */}
         {isLoading && (
           <div className="flex justify-start">
             <div className="bg-gray-200 text-gray-500 p-3 rounded-2xl rounded-bl-none max-w-xs shadow">
               <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-pulse delay-75"></div>
-                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-pulse delay-150"></div>
-                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-pulse delay-300"></div>
+                <div className="w-2 h-2 bg-gray-500 rounded-full animate-pulse delay-75"></div>
+                <div className="w-2 h-2 bg-gray-500 rounded-full animate-pulse delay-150"></div>
+                <div className="w-2 h-2 bg-gray-500 rounded-full animate-pulse delay-300"></div>
               </div>
             </div>
           </div>
@@ -178,7 +187,7 @@ const ChatBox = ({ isOpen, isClose }) => {
         <div ref={chatEndRef} />
       </div>
 
-      {/* Input */}
+      {/* Input Form */}
       <div className="p-4 border-t border-gray-200 bg-white">
         <form onSubmit={handleSendMessage} className="flex gap-2">
           <input
@@ -205,3 +214,4 @@ const ChatBox = ({ isOpen, isClose }) => {
 };
 
 export default ChatBox;
+
