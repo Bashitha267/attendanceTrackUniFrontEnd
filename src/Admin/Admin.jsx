@@ -11,12 +11,14 @@ import {
   MailIcon,
   Menu,
   MessageCircle,
+  Pencil, // Added icon for edit
   PhoneIcon,
   Plus,
+  Search, // Added icon for search
   ShieldIcon,
   Trash2Icon,
   User,
-  X
+  X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import ChatBox from "../ChatBox";
@@ -32,7 +34,7 @@ const AdminDashboard = () => {
   const [courseLoading, setCourseLoading] = useState(false);
   const [subjects, setSubjects] = useState([]);
   const [subjectsloading, setSubjectsloading] = useState(false);
-  
+
   // Filter states for Courses Tab
   const [filterBatchYear, setFilterBatchYear] = useState("");
   const [filterYear, setFilterYear] = useState("");
@@ -54,10 +56,22 @@ const AdminDashboard = () => {
   const [attendees, setAttendees] = useState([]);
   const [attendeesLoading, setAttendeesLoading] = useState(false);
 
-  // NEW: Dedicated filter states for the Reports tab
+  // Dedicated filter states for the Reports tab
   const [reportFilterDate, setReportFilterDate] = useState("");
   const [reportFilterYear, setReportFilterYear] = useState("");
 
+  // --- NEW: States for Edit Details Tab ---
+  const [editSearchRegNo, setEditSearchRegNo] = useState("");
+  const [editableUser, setEditableUser] = useState(null);
+  const [editUserLoading, setEditUserLoading] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [updateUserLoading, setUpdateUserLoading] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    name: "",
+    email: "",
+    gender: "",
+    contact_no: "",
+  });
 
   const activeroles = [
     { id: "all", icon: Grid2X2 },
@@ -67,7 +81,13 @@ const AdminDashboard = () => {
   ];
 
   const [formDataCourse, setFormDataCourse] = useState({
-    subjectCode: "", name: "", year: "", semester: "", lecturerId: "", batchYear: "", subpinCode: "",
+    subjectCode: "",
+    name: "",
+    year: "",
+    semester: "",
+    lecturerId: "",
+    batchYear: "",
+    subpinCode: "",
   });
 
   const [studentList, setStudentList] = useState([]);
@@ -77,13 +97,17 @@ const AdminDashboard = () => {
     if (!courseID) return;
     const fetchStudents = async () => {
       try {
-        const response = await fetch(`https://attendance-uni-backend.vercel.app/subjects/getsubjects/${courseID}`);
+        const response = await fetch(
+          `https://attendance-uni-backend.vercel.app/subjects/getsubjects/${courseID}`
+        );
         const data = await response.json();
         if (data && data.success) {
           setSubject(data.subject);
           setStudentList(data.subject.studentsEnrolled || []);
         }
-      } catch (e) { console.log(e); }
+      } catch (e) {
+        console.log(e);
+      }
     };
     fetchStudents();
   }, [courseID]);
@@ -108,14 +132,18 @@ const AdminDashboard = () => {
   useEffect(() => {
     const getApprovels = async () => {
       try {
-        const res = await fetch("https://attendance-uni-backend.vercel.app/users/getnotapproved");
+        const res = await fetch(
+          "https://attendance-uni-backend.vercel.app/users/getnotapproved"
+        );
         const data = await res.json();
         if (Array.isArray(data.users)) {
           setRequestsSize(data.users.length);
           setPendingApprovels(data.users);
           setFilterdApprovels(data.users);
         }
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        console.error(e);
+      }
     };
     getApprovels();
   }, []);
@@ -125,17 +153,20 @@ const AdminDashboard = () => {
       setSubjectsloading(true);
       setSessionsLoading(true);
       try {
-        const subjectsResponse = await axios.get("https://attendance-uni-backend.vercel.app/subjects/getsubjects");
+        const subjectsResponse = await axios.get(
+          "https://attendance-uni-backend.vercel.app/subjects/getsubjects"
+        );
         if (subjectsResponse.data.success) {
           setSubjects(subjectsResponse.data.subjects);
         }
 
-        const sessionsResponse = await axios.get("https://attendance-uni-backend.vercel.app/class/getall");
+        const sessionsResponse = await axios.get(
+          "https://attendance-uni-backend.vercel.app/class/getall"
+        );
         if (sessionsResponse.data.success) {
           setClassSessions(sessionsResponse.data.data);
           setFilteredSessions(sessionsResponse.data.data); // Initially show all
         }
-
       } catch (err) {
         console.log(err);
         setToast({ message: "Failed to load data.", type: false });
@@ -150,31 +181,32 @@ const AdminDashboard = () => {
   // Effect for Courses tab filtering
   useEffect(() => {
     const filtered = subjects.filter((subject) => {
-      const matchBatchYear = filterBatchYear ? subject.batchYear === Number(filterBatchYear) : true;
+      const matchBatchYear = filterBatchYear
+        ? subject.batchYear === Number(filterBatchYear)
+        : true;
       const matchYear = filterYear ? subject.year === Number(filterYear) : true;
-      const matchSemester = filterSemester ? subject.semester === Number(filterSemester) : true;
+      const matchSemester = filterSemester
+        ? subject.semester === Number(filterSemester)
+        : true;
       return matchBatchYear && matchYear && matchSemester;
     });
     setFilteredSubjects(filtered);
   }, [subjects, filterBatchYear, filterYear, filterSemester]);
 
-  
-  // *** NEW: Updated useEffect for Report Filtering (Date and Year) ***
+  // Updated useEffect for Report Filtering (Date and Year)
   useEffect(() => {
     if (Array.isArray(classSessions)) {
       let tempSessions = [...classSessions];
 
-      // Filter by Date
       if (reportFilterDate) {
-        tempSessions = tempSessions.filter(session => {
-          const sessionDate = new Date(session.date).toISOString().split('T')[0];
+        tempSessions = tempSessions.filter((session) => {
+          const sessionDate = new Date(session.date).toISOString().split("T")[0];
           return sessionDate === reportFilterDate;
         });
       }
 
-      // Filter by Year of Study
       if (reportFilterYear) {
-        tempSessions = tempSessions.filter(session => {
+        tempSessions = tempSessions.filter((session) => {
           return session.subjectID?.year === Number(reportFilterYear);
         });
       }
@@ -183,116 +215,212 @@ const AdminDashboard = () => {
     }
   }, [reportFilterDate, reportFilterYear, classSessions]);
 
-
   useEffect(() => {
     if (pendingApprovels.length > 0) {
       if (activeApprove === "all") setFilterdApprovels(pendingApprovels);
-      else setFilterdApprovels(pendingApprovels.filter((item) => item.role === activeApprove));
+      else
+        setFilterdApprovels(
+          pendingApprovels.filter((item) => item.role === activeApprove)
+        );
     } else setFilterdApprovels([]);
   }, [activeApprove, pendingApprovels]);
 
-  const handleInputChangeCourse = (e) => setFormDataCourse({ ...formDataCourse, [e.target.name]: e.target.value });
+  const handleInputChangeCourse = (e) =>
+    setFormDataCourse({ ...formDataCourse, [e.target.name]: e.target.value });
 
   const handleSubmitCourse = async (e) => {
     e.preventDefault();
     setCourseLoading(true);
     try {
-      const res = await axios.post("https://attendance-uni-backend.vercel.app/subjects/create", formDataCourse);
+      const res = await axios.post(
+        "https://attendance-uni-backend.vercel.app/subjects/create",
+        formDataCourse
+      );
       if (res.data.success) {
         setToast({ message: "Course added successfully", type: true });
         setShowAddCourse(false);
-        setFormDataCourse({ subjectCode: "", name: "", year: "", semester: "", lecturerId: "", batchYear: "", });
+        setFormDataCourse({
+          subjectCode: "",
+          name: "",
+          year: "",
+          semester: "",
+          lecturerId: "",
+          batchYear: "",
+        });
       } else setToast({ message: "Failed to add course", type: false });
     } catch (error) {
       setToast({ message: "Enter valid details", type: false });
-    } finally { setCourseLoading(false); }
+    } finally {
+      setCourseLoading(false);
+    }
   };
 
   const addApprove = async (reg_no) => {
     try {
-      const response = await axios.put(`https://attendance-uni-backend.vercel.app/users/approve/${reg_no}`);
+      const response = await axios.put(
+        `https://attendance-uni-backend.vercel.app/users/approve/${reg_no}`
+      );
       if (response.data.success) {
         setToast({ message: "Approving success", type: true });
         setPendingApprovels((prev) => prev.filter((u) => u.reg_no !== reg_no));
         setFilterdApprovels((prev) => prev.filter((u) => u.reg_no !== reg_no));
       } else setToast({ message: response.data.message, type: false });
-    } catch (error) { setToast({ message: "Error approving user", type: false }); }
+    } catch (error) {
+      setToast({ message: "Error approving user", type: false });
+    }
   };
 
   const removeUser = async (reg_no) => {
     try {
-      const response = await axios.delete(`https://attendance-uni-backend.vercel.app/users/deleteuser/${reg_no}`);
+      const response = await axios.delete(
+        `https://attendance-uni-backend.vercel.app/users/deleteuser/${reg_no}`
+      );
       if (response.data.success) {
         setToast({ message: "User removed successfully", type: true });
         setPendingApprovels((prev) => prev.filter((u) => u.reg_no !== reg_no));
         setFilterdApprovels((prev) => prev.filter((u) => u.reg_no !== reg_no));
-      } else setToast({ message: response.data.message, type: false });
-    } catch (error) { setToast({ message: "Error removing user", type: false }); }
+        return true; // Indicate success
+      } else {
+        setToast({ message: response.data.message, type: false });
+        return false; // Indicate failure
+      }
+    } catch (error) {
+      setToast({ message: "Error removing user", type: false });
+      return false; // Indicate failure
+    }
   };
 
   const handleSelectClass = (session) => {
     setSelectedClass(session);
     setAttendeesLoading(true);
-    const attendedRegNumbers = session.studentsAttended.map(student => student.reg_no);
+    const attendedRegNumbers = session.studentsAttended.map(
+      (student) => student.reg_no
+    );
     setAttendees(attendedRegNumbers);
     setAttendeesLoading(false);
   };
 
-  // NEW: Updated function to handle downloading the CSV report
   const handleDownloadReport = () => {
     if (!selectedClass || attendees.length === 0) {
       setToast({ message: "No attendance data to download.", type: false });
       return;
     }
 
-    const subjectDetails = subjects.find(s => s._id === selectedClass.subjectID._id);
-    
+    const subjectDetails = subjects.find(
+      (s) => s._id === selectedClass.subjectID._id
+    );
+
     const reportDate = new Date(selectedClass.date);
-    const longDateString = reportDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+    const longDateString = reportDate.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
 
-    const lecturerName = selectedClass.lecturer?.name || 'N/A';
-    const lecturerId = selectedClass.lecturer?.reg_no || 'N/A';
-    const registrarId = selectedClass.registor?.reg_no || 'N/A';
+    const lecturerName = selectedClass.lecturer?.name || "N/A";
+    const lecturerId = selectedClass.lecturer?.reg_no || "N/A";
+    const registrarId = selectedClass.registor?.reg_no || "N/A";
 
     const headers = ["Registration No"];
-    const rows = attendees.map(regNo => [regNo]);
+    const rows = attendees.map((regNo) => [regNo]);
     const attendanceCount = attendees.length;
 
     let csvContent = "data:text/csv;charset=utf-8,";
 
-    // --- CSV Header Section with Updated Titles ---
-    csvContent += `Course:,"${subjectDetails?.name || ''} (${subjectDetails?.subjectCode || ''})"\n`;
+    csvContent += `Course:,"${subjectDetails?.name || ""} (${
+      subjectDetails?.subjectCode || ""
+    })"\n`;
     csvContent += `Date:,"${longDateString}"\n`;
     csvContent += `Lecturer Name:,"${lecturerName}"\n`;
     csvContent += `Lecturer ID:,${lecturerId}\n`;
     csvContent += `Registrar ID (Marked By):,${registrarId}\n\n`;
-
-    // Main Data Table
     csvContent += headers.join(",") + "\n";
-    csvContent += rows.map(e => e.join(",")).join("\n");
-
-    // --- Footer Section with Updated Title ---
+    csvContent += rows.map((e) => e.join(",")).join("\n");
     csvContent += `\n\nTotal Attendance Count:,${attendanceCount}\n`;
 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    const fileName = `Attendance_${subjectDetails?.subjectCode || 'Report'}_${reportDate.toISOString().split('T')[0]}.csv`;
+    const fileName = `Attendance_${
+      subjectDetails?.subjectCode || "Report"
+    }_${reportDate.toISOString().split("T")[0]}.csv`;
     link.setAttribute("download", fileName);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
+  // --- NEW: Functions for Edit Details Tab ---
+  const handleSearchUser = async (e) => {
+    e.preventDefault();
+    if (!editSearchRegNo.trim()) {
+      setToast({ message: "Please enter a registration number.", type: false });
+      return;
+    }
+    setEditUserLoading(true);
+    setEditableUser(null);
+    try {
+      const response = await axios.get(
+        `https://attendance-uni-backend.vercel.app/users/getbyid/${editSearchRegNo}`
+      );
+      if (response.data.success) {
+        setEditableUser(response.data.user);
+      } else {
+        setToast({ message: response.data.message, type: false });
+      }
+    } catch (error) {
+      setToast({
+        message: error.response?.data?.message || "User not found or server error.",
+        type: false,
+      });
+    } finally {
+      setEditUserLoading(false);
+    }
+  };
+
+  const handleEditFormChange = (e) => {
+    setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
+  };
+
+  const handleUpdateUserSubmit = async (e) => {
+    e.preventDefault();
+    setUpdateUserLoading(true);
+    try {
+      const response = await axios.patch(
+        `https://attendance-uni-backend.vercel.app/users/update/${editableUser.reg_no}`,
+        editFormData
+      );
+      if (response.data.success) {
+        setToast({ message: "User updated successfully!", type: true });
+        setEditableUser(response.data.user); // Update UI with new data
+        setIsEditModalOpen(false);
+      } else {
+        setToast({ message: response.data.message, type: false });
+      }
+    } catch (error) {
+      setToast({
+        message: error.response?.data?.message || "Failed to update user.",
+        type: false,
+      });
+    } finally {
+      setUpdateUserLoading(false);
+    }
+  };
+
+  const handleDeleteFromEdit = async (reg_no) => {
+    const success = await removeUser(reg_no);
+    if (success) {
+      setEditableUser(null); // Clear the user from view
+      setEditSearchRegNo(""); // Clear search input
+    }
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case "courses":
         return (
-          <div className="space-y-6">
+            // ... (Your existing 'courses' case JSX is unchanged)
+            <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="text-xl font-semibold text-gray-900">
                 Course Management
@@ -377,7 +505,8 @@ const AdminDashboard = () => {
         );
       case "reports":
         return (
-          <div className="space-y-6">
+            // ... (Your existing 'reports' case JSX is unchanged)
+            <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Class Session Reports</h2>
 
             {/* *** NEW: Updated Filter Section *** */}
@@ -487,13 +616,15 @@ const AdminDashboard = () => {
         );
       case "profile":
         return (
-          <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden font-sans border border-gray-200/80">
+            // ... (Your existing 'profile' case JSX is unchanged)
+            <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden font-sans border border-gray-200/80">
             <div className="relative"><div className="h-32 bg-[#9810FA]"></div><div className="absolute left-1/2 -translate-x-1/2 -bottom-16 transform"><img className="w-36 h-36 rounded-full border-4 border-white object-cover shadow-md" src={profileData.img || "https://res.cloudinary.com/dnfbik3if/image/upload/v1757522500/Gemini_Generated_Image_35u0bk35u0bk35u0_mbqnnr_og0ikh.png"} alt="Admin" /></div></div><div className="text-center px-6 pt-20 pb-8"><h2 className="text-2xl font-bold text-gray-800">{"Admin"}</h2><p className="text-gray-500 mt-1 text-sm">System Administrator</p><div className="mt-8 text-left space-y-5 max-w-sm mx-auto"><div className="flex items-center"><MailIcon /><div className="ml-4"><p className="text-xs text-gray-500">Email</p><a href={`mailto:${profileData.email}`} className="text-sm font-medium text-gray-700 hover:text-purple-600 break-all">{profileData.email}</a></div></div><div className="flex items-center"><PhoneIcon /><div className="ml-4"><p className="text-xs text-gray-500">Phone</p><p className="text-sm font-medium text-gray-700">{profileData.contact_no || "Not Available"}</p></div></div><div className="flex items-center"><ShieldIcon /><div className="ml-4"><p className="text-xs text-gray-500">Access Level</p><p className="text-sm font-medium text-gray-700">Full System Access</p></div></div></div></div>
           </div>
         );
       case "pending":
         return (
-          <div className="flex flex-col gap-6">
+            // ... (Your existing 'pending' case JSX is unchanged)
+            <div className="flex flex-col gap-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div className="text-xl font-semibold text-gray-900 ">Pending Requests</div>
               <div className="relative w-full sm:w-auto">
@@ -518,8 +649,112 @@ const AdminDashboard = () => {
         );
       case "studentList":
         return (
-          <div className="max-w-6xl mx-auto ">
+            // ... (Your existing 'studentList' case JSX is unchanged)
+            <div className="max-w-6xl mx-auto ">
             {subject ? (<> <div className="rounded-lg p-4 mb-4"><h2 className="text-xl font-semibold mb-1">{subject.name} ({subject.subjectCode})</h2><p className="text-gray-600 text-lg">Lecturer: {subject.lecturerId} | Year: {subject.year} | Semester: {subject.semester} | Batch: {subject.batchYear}</p></div><div className="text-xl font-semibold mb-1 px-4 pb-2 underline-offset-2 underline">Enrolled Student List</div>{studentList.length > 0 ? (<div className="space-y-2 ">{studentList.map((studentId) => (<div key={studentId} className="flex justify-between items-center bg-purple-50 shadow p-3 py-4 rounded hover:bg-purple-200 transition max-w-2xl border-2 border-purple-50"><span className="px-3 font-semibold font-sans text-lg">{studentId}</span><Trash2Icon className="w-5 h-5 text-red-500 cursor-pointer hover:text-red-700 mr-3" onClick={() => handleDelete(studentId)} /></div>))}</div>) : (<p className="text-gray-500">No students enrolled.</p>)}</>) : (<p className="text-gray-500">Loading subject info...</p>)}
+          </div>
+        );
+
+      // --- NEW: Case for Edit Details ---
+      case "edit":
+        return (
+          <div className="space-y-6">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Edit User Details
+            </h2>
+            {/* Search Form */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <form onSubmit={handleSearchUser} className="flex flex-col sm:flex-row items-center gap-4">
+                <input
+                  type="text"
+                  value={editSearchRegNo}
+                  onChange={(e) => setEditSearchRegNo(e.target.value)}
+                  placeholder="Enter Registration Number..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:outline-0"
+                />
+                <button type="submit" disabled={editUserLoading} className="w-full sm:w-auto flex items-center justify-center px-4 py-2 bg-purple-600 hover:bg-purple-900 text-white rounded-lg min-w-[120px]">
+                  {editUserLoading ? ( <Loader2Icon size={20} className="animate-spin" />) : (<><Search size={18} className="mr-2" /> Search</>)}
+                </button>
+              </form>
+            </div>
+
+            {/* User Details Display */}
+            {editableUser && (
+              <div className="bg-white rounded-lg shadow-lg p-6 border-l-4 border-purple-500">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-bold text-gray-800">{editableUser.name}</h3>
+                    <p className="text-sm text-gray-600">
+                      <span className="font-semibold">Reg No:</span>{" "}
+                      {editableUser.reg_no}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      <span className="font-semibold">Email:</span>{" "}
+                      {editableUser.email}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      <span className="font-semibold">Contact:</span>{" "}
+                      {editableUser.contact_no}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      <span className="font-semibold">Gender:</span>{" "}
+                      <span className="capitalize">{editableUser.gender}</span>
+                    </p>
+                    <p className="text-sm text-gray-500">Role: <span className="font-medium text-purple-700 capitalize bg-purple-100 px-2 py-1 rounded-full">{editableUser.role}</span></p>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button onClick={() => { setEditFormData({ name: editableUser.name, email: editableUser.email, gender: editableUser.gender, contact_no: editableUser.contact_no,}); setIsEditModalOpen(true);}} className="p-2 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200">
+                      <Pencil size={20} />
+                    </button>
+                    <button onClick={() => handleDeleteFromEdit(editableUser.reg_no)} className="p-2 bg-red-100 text-red-600 rounded-full hover:bg-red-200">
+                      <Trash2Icon size={20} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Edit User Modal */}
+            {isEditModalOpen && (
+                 <div className="fixed inset-0 z-40 flex items-center justify-center p-4  bg-opacity-60 backdrop-blur-lg">
+                 <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+                   <div className="p-6 border-b flex justify-between items-center">
+                     <h3 className="text-xl font-bold text-gray-800">Edit User</h3>
+                     <button onClick={() => setIsEditModalOpen(false)} className="p-2 rounded-full hover:bg-gray-200"><X size={24} /></button>
+                   </div>
+                   <form onSubmit={handleUpdateUserSubmit}>
+                     <div className="p-6 space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                            <input type="text" name="name" value={editFormData.name} onChange={handleEditFormChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"/>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                            <input type="email" name="email" value={editFormData.email} onChange={handleEditFormChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"/>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
+                            <input type="text" name="contact_no" value={editFormData.contact_no} onChange={handleEditFormChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"/>
+                        </div>
+                        <div>
+                             <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                             <select name="gender" value={editFormData.gender} onChange={handleEditFormChange} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600">
+                                 <option value="male">Male</option>
+                                 <option value="female">Female</option>
+                                 <option value="other">Other</option>
+                             </select>
+                        </div>
+                     </div>
+                     <div className="p-6 border-t bg-gray-50 rounded-b-xl flex justify-end gap-3">
+                        <button type="button" onClick={() => setIsEditModalOpen(false)} className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">Cancel</button>
+                       <button type="submit" disabled={updateUserLoading} className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-900 min-w-[120px] flex justify-center items-center">
+                         {updateUserLoading ? <Loader2Icon className="animate-spin" /> : "Update User"}
+                       </button>
+                     </div>
+                   </form>
+                 </div>
+               </div>
+            )}
           </div>
         );
       default:
@@ -530,6 +765,7 @@ const AdminDashboard = () => {
   const tabs = [
     { id: "courses", label: "Courses", icon: BookOpen },
     { id: "reports", label: "Reports", icon: FileText },
+    { id: "edit", label: "Edit Details", icon: Pencil }, // Added new tab
     { id: "profile", label: "Profile", icon: User },
     { id: "pending", label: "Pending Approval", icon: Hourglass },
   ];
@@ -537,7 +773,10 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-purple-50">
       <Header requests={requestsSize} />
-      <div className="bg-purple-600 fixed bottom-8 right-8 lg:bottom-6 lg:right-24 z-50 px-4 py-3 rounded-full shadow-lg hover:bg-purple-800" onClick={() => setisChatOpen(!isChatopen)}>
+      <div
+        className="bg-purple-600 fixed bottom-8 right-8 lg:bottom-6 lg:right-24 z-50 px-4 py-3 rounded-full shadow-lg hover:bg-purple-800"
+        onClick={() => setisChatOpen(!isChatopen)}
+      >
         <MessageCircle size={25} className="text-white w-8 h-8 lg:w-10 lg:h-10" />
       </div>
       <div>
@@ -545,18 +784,42 @@ const AdminDashboard = () => {
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 ">
         <div className="lg:hidden mb-4">
-          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="flex items-center w-full px-4 py-3 text-left rounded-lg bg-white shadow-sm text-purple-800">
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="flex items-center w-full px-4 py-3 text-left rounded-lg bg-white shadow-sm text-purple-800"
+          >
             <Menu size={20} className="mr-3" />
             {tabs.find((tab) => tab.id === activeTab)?.label || "Menu"}
           </button>
         </div>
         <div className="relative flex flex-col lg:flex-row lg:space-x-8 ">
-          <div className={`fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden ${mobileMenuOpen ? 'block' : 'hidden'}`} onClick={() => setMobileMenuOpen(false)}></div>
-          <div className={`fixed inset-y-0 left-0 w-64 h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:shadow-none lg:h-auto z-30 ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+          <div
+            className={`fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden ${
+              mobileMenuOpen ? "block" : "hidden"
+            }`}
+            onClick={() => setMobileMenuOpen(false)}
+          ></div>
+          <div
+            className={`fixed inset-y-0 left-0 w-64 h-screen shadow-lg transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 lg:shadow-none lg:h-auto z-30 ${
+              mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
+          >
             <div className="flex flex-col space-y-2 p-4 lg:p-0 bg-white lg:bg-transparent rounded-lg h-full">
               {tabs.map((tab) => (
-                <button key={tab.id} onClick={() => { setActiveTab(tab.id); setMobileMenuOpen(false); }} className={`w-full flex items-center py-4 px-5 text-left rounded-lg transition-colors ${activeTab === tab.id ? "bg-purple-700 text-white font-semibold shadow" : "text-purple-800 hover:bg-purple-400 hover:text-white"}`}>
-                  <tab.icon size={20} className="mr-3" />{tab.label}
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`w-full flex items-center py-4 px-5 text-left rounded-lg transition-colors ${
+                    activeTab === tab.id
+                      ? "bg-purple-700 text-white font-semibold shadow"
+                      : "text-purple-800 hover:bg-purple-400 hover:text-white"
+                  }`}
+                >
+                  <tab.icon size={20} className="mr-3" />
+                  {tab.label}
                 </button>
               ))}
             </div>
@@ -564,7 +827,15 @@ const AdminDashboard = () => {
           <div className="flex-1 mt-4 lg:mt-0">{renderContent()}</div>
         </div>
       </div>
-      {toast.message && (<div className={`fixed top-24 right-4 z-50 px-4 py-2 rounded shadow-lg max-w-xs text-white ${toast.type ? "bg-green-500" : "bg-red-500"} transition-all duration-300`}>{toast.message}</div>)}
+      {toast.message && (
+        <div
+          className={`fixed top-24 right-4 z-50 px-4 py-2 rounded shadow-lg max-w-xs text-white ${
+            toast.type ? "bg-green-500" : "bg-red-500"
+          } transition-all duration-300`}
+        >
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 };
