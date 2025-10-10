@@ -304,7 +304,7 @@ const StudentDashboard = () => {
 
     const tabs = [
         { id: 'subjects', label: 'My Subjects', icon: BookOpen },
-        { id: 'attendance', label: 'Attendance', icon: CheckCircle },
+       
         { id: 'enroll', label: 'Enroll Courses', icon: PlusCircle },
         { id: 'profile', label: 'Profile', icon: QrCode },
     ];
