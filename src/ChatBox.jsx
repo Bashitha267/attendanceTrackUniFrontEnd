@@ -17,7 +17,7 @@ const SendIcon = () => (
 
 // --- Gemini AI Setup ---
 // IMPORTANT: The API key is now securely loaded from environment variables.
-const API_KEY = "AIzaSyAqoxTrIXOr5IUFQjHGsWXoOqRgqnqLO14";
+const API_KEY = "AIzaSyBr-VdnnBQO29IpLLlu3ZnFrENciu6S13g";
 const genAI = new GoogleGenerativeAI(API_KEY);
 // UPDATED: Switched to the gemini-2.5-flash model
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
